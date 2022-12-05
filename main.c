@@ -14,4 +14,5 @@ int main()
     fscanf(fdat, "%2d", &num);
     fgets(plat, 50, fdat);
     printf("%-50s", plat);
+    printf("test");
 }
