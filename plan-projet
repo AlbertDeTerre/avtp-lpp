@@ -1,0 +1,44 @@
+0)  Demander à l'utilisateur s'il est client où administrateur (L'admin pourra ajouter, supprimer,
+    changer les menus et le client pourra juste commander).
+
+1)  Faire une liste chainées des tous les menus
+    Faire une liste chainées de toutes les tables
+
+    1.1)
+        Structure menu:
+            struct menu {
+                char[??] nom;
+                char[??] entree;
+                char[??] plat;
+                char[??] dessert;
+                double prix;
+            };
+
+        Structure entree:
+            struct entree {
+                char[??] nom;
+                double prix;
+            };
+
+        Structure plat:
+            struct plat {
+                char[??] nom;
+                double prix;
+            };
+
+        Structure dessert:
+            struct dessert {
+                char[??] nom;
+                double prix;
+            };
+
+2)  Demander au client ce qu'il veut faire:
+    
+    -> Réserver pour manger plus tard OU manger directement sur place
+
+3)  Faire une méthode / fonction pour chaque actions:
+
+    - demanderStatut(); demander qui est l'utilisateur (client ou admin)
+    - reserver(); -> permettra de réserver une ou plusieurs tables.
+    - choisirMenu(); -> demande au client le menu qu'il veut.
+    - addition(); -> calcul l'addition d'une ou plusieurs tables.
