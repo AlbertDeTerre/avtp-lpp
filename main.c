@@ -4,13 +4,12 @@ int main()
 {
     //Ouverture des fichiers
     FILE *fdat;
-    fdat = fopen("VoiturierPlasschaert01.dat", "r");
+    fdat = fopen("menu.dat", "r");
 
     //Variables et délcaration de fonctions
-    char menu[50];
+    char menu[51];
 
     //Début du programme
-    fgets(menu, 50, fdat);
-    printf("%-50s", plat);
-    printf("test");
+    fscanf(fdat, "%5Os", menu);
+    printf("%-50s", menu);
 }
