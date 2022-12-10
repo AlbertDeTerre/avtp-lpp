@@ -10,6 +10,5 @@ int main()
     char menu[51];
 
     //Début du programme
-    fscanf(fdat, "%5Os", menu);
-    printf("%-50s", menu);
+    printf("test");
 }
