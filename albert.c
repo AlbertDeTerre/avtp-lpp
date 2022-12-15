@@ -105,18 +105,19 @@ personnel * lecturePersonnel(){
     
     courant = deb;
     return courant;
-
 }
 
 void identification(){
     
     int matricule;
+    FILE *fdat = fopen("VoiturierPlasschaertPersonnel.dat", "r");
 
     printf("Entrez votre matricule: ");
     scanf("%3d", &matricule);
 
-
-
+    while (!feof(fdat)){
+        
+    }
 }
 
 void reservation(){
