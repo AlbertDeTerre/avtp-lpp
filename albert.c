@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 //Structure table
 typedef struct table{
@@ -39,14 +40,9 @@ int main()
 
     while (running == 1)
     {
-        int option;
-        printf("\nQue voulez vous faire ? (1: RESERVATION | 2: COMMANDE | 0: QUITTER)\n");
+        int option = 3;
+        printf("\nQue voulez vous faire ? (1: RESERVATION | 2: COMMANDE | AUTRE: QUITTER)\n");
         scanf("%d", &option);
-
-        while (option != 1 && option != 2 && option != 0){
-            printf("Que voulez vous faire ? (1: RESERVATION | 2: COMMANDE | AUTRE: QUITTER)\n");
-            scanf("%d", &option);
-        }
 
         //L'utilisateur veut encoder une réservation
         if(option == 1){
@@ -54,17 +50,17 @@ int main()
 
         //L'utilisateur veut encoder une commande
         }else if(option == 2){
-            
+
 
         //L'utilisateur veut quitter le programme
         }else{
             break;
         }
-        
+
         running = 0;
     }
 
-    printf("\n\n** FIN DU PROGRAMME **\n");
+    printf("\n** FIN DU PROGRAMME **\n");
 }
 
 table * lectureTable(){
@@ -160,73 +156,119 @@ void reservation(table * courant){
     int reservations[8][50], existe = 0;
     char jours[8][10];
 
-    //Initialise le vecteur comprenant chaque jours de la semaine
-    for (int i = 1; i <= 7; i++){
-        fscanf(fjours, "%10s", jours[i]);
-    }
-
     //Déclaration des variables
-    int nbPersonnes, persTable, numTable, min = 999999, nbTables;
+    int nbPersonnes = 999999, persTable, numTable, numTableChoisie = 0, min = 999999, nbTables, tablesRes[8][50], nbTablesRes[8];
     char jour[10], jourFichier[10];
 
     //Demande à l'utilisateur pour combien de personne le client à reserver
     printf("\nJour de la réservation: ");
     scanf("%9s", jour);
+    printf("%10s", jour);
 
-    while(existe == 0){
-        printf("\nCe jour n'existe pas !\nJour de la réservation: ");
-        scanf("%9s", jour);
-        for (int i = 1; i <= 7; i++){
-            if (strcmp(jours[i], jour) == 0){
-                if (i == 1){
-                    printf ("\nPas de service le LUNDI !");
-                }else{
-                    existe = 1;
-                    break;
-                }
-            }
+    for (int i = 0; i < 10; i++){
+        if (jour[i] == '\0'){
+            break;
+        }
+        jour[i] = toupper(jour[i]);
+    }
+
+    //Initialise le vecteur comprenant chaque jours de la semaine
+    for (int i = 1; i <= 7; i++){
+        fscanf(fjours, "%10s", jours[i]);
+
+        if (strcmp(jours[i], jour) == 0){
+            existe = 1;
         }
     }
 
+    //SI le jour est lundi
+    if (strcmp(jour, "LUNDI") == 0){
+        printf("\nLe restaurant n'est pas ouvert le lundi !");
+        existe = 0;
+    }
 
+    while (existe == 0)
+    {
+        //Demande le jour de la réservation;
+        printf("\nJour de la réservation: ");
+        scanf("%9s", jour);
+
+        //Met le jour en MAJ
+        for (int i = 0; i < 10; i++){
+            if (jour[i] == '\0'){
+                break;
+            }
+            jour[i] = toupper(jour[i]);
+        }
+
+        //Série de test pour voir si le jour est OK
+        for (int i = 1; i <= 7; i++){
+            if (strcmp(jours[i], jour) == 0){
+                if (strcmp((jour), "LUNDI") == 0){
+                    printf("\nLe restaurant n'est pas ouvert le lundi !");
+                    break;
+                }
+
+                existe = 1;
+            }
+        }
+    }
+    
+    //Demande le nombre de personnes
     printf("\nNombre de personnes: ");
     scanf("%2d", &nbPersonnes);
 
-    //On parcours le fichier des reservations a la recherche du jours choisi
+    //TODO: REGARDER SI LES TABLES SONT DéJA CHOISIES
     for (int i = 1; i <= 7; i++){
-        fscanf(fdat, "%10s %2d", &jourFichier, &nbTables);
+        fscanf(fdat, "%9s %2d", jourFichier, nbTablesRes[i]);
 
-        //Compare si le jour entré par l'utilisateur = celui lu dans le fichier
-        if (strcmp(toupper(jourFichier), toupper(jour)) == 0){
-            for (int i = 0; i < nbTables; i++){
-                fscanf(fdat, "%2d", &numTable);
+        for (int j = 0; j < nbTablesRes; j++){
+            fscanf(fdat, "%2d", &tablesRes[i][j]);
+        }
+    }
+
+    
+
+    
+
+    printf("%2d", numTableChoisie);
+
+
+    // //On parcours le fichier des reservations a la recherche du jours choisi
+    // for (int i = 1; i <= 7; i++){
+    //     fscanf(fdat, "%10s %2d", &jourFichier, &nbTables);
+
+    //     //Compare si le jour entré par l'utilisateur = celui lu dans le fichier
+    //     if (strcmp(toupper(jourFichier), toupper(jour)) == 0){
+    //         for (int i = 0; i < nbTables; i++){
+    //             fscanf(fdat, "%2d", &numTable);
                 
-                if ((courant->nbPersonnes >= nbPersonnes) && (courant->nbPersonnes < min)){
+    //             if ((courant->nbPersonnes >= nbPersonnes) && (courant->nbPersonnes < min)){
                     
-                    min = courant->nbPersonnes;
-                    tableChoisie = courant;
-                 }
+    //                 min = courant->nbPersonnes;
+    //                 tableChoisie = courant;
+    //              }
 
-            }
-        }
+    //         }
+    //     }
 
-    }
+    // }
 
-    //Rechercher parmis les tables
-    deb = courant;
-    while (courant != NULL){
-        if ((courant->nbPersonnes >= nbPersonnes) && (courant->nbPersonnes < min)){
-            min = courant->nbPersonnes;
-            tableChoisie = courant;
-        }
+    // //Rechercher parmis les tables
+    // deb = courant;
+    // while (courant != NULL){
+    //     if ((courant->nbPersonnes >= nbPersonnes) && (courant->nbPersonnes < min)){
+    //         min = courant->nbPersonnes;
+    //         tableChoisie = courant;
+    //     }
 
-        courant = courant->suivant;
-    }
+    //     courant = courant->suivant;
+    // }
 
-    if (min == 999){
+    // if (min == 999){
 
-    }
+    // }
 
-    printf("\nTable choisie: %2d", tableChoisie->num);
+    // printf("\nTable choisie: %2d", tableChoisie->num);
 
 }
