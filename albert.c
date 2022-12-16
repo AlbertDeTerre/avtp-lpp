@@ -20,8 +20,8 @@ typedef struct personnel{
 int main()
 {
     //Ouverture des fichiers
-    FILE *ftab, *fmenu, *fboi, *fpersonnel, *fhoraire;
-    ftab = fopen("tables.dat", "r");
+    FILE *fboisson, *fmenu, *fboi, *fpersonnel, *fhoraire;
+    fboisson = fopen("tables.dat", "r");
     fmenu = fopen("menu.dat", "r");
     fboi = fopen("boisson.dat", "r");
     fpersonnel = fopen("personnel.dat", "r");
@@ -29,14 +29,14 @@ int main()
     
     //Déclaration des fonctions et variables;
     int running = 1;
-    table *tdeb, *tcourant;
+    table *tdeb, *bcourant;
     personnel *pdeb, *pcourant;
     table * lectureTable();
     personnel * lecturePersonnel();
     
 
     //Lecture du fichiers reprenant les tables dans la fonction lectureTable()
-    tcourant = lectureTable();
+    bcourant = lectureTable();
     pcourant = lecturePersonnel();
 
     pdeb = pcourant;
@@ -55,30 +55,30 @@ int main()
 table * lectureTable(){
 
     //Ouverture du fichier qui va être lu ("table.dat")
-    FILE *ftab;
-    ftab = fopen("tables.dat", "r");
+    FILE *fboisson;
+    fboisson = fopen("tables.dat", "r");
 
     //Déclaration des différentes structures
-    table *tdeb, *tcourant, *tsuivant;
+    table *tdeb, *bcourant, *bsuivant;
 
     //Lecture du fichier et affectation des différentes valeurs lues dans les variables de la structure table
-    tcourant = malloc(sizeof(table));
-    tdeb = tcourant;
-    fscanf(ftab, "%2d", &tcourant->num);
+    bcourant = malloc(sizeof(table));
+    tdeb = bcourant;
+    fscanf(fboisson, "%2d", &bcourant->num);
 
     //Commencement de la boucle de lecture
-    while (!feof(ftab)){       
-        fscanf(ftab, "%2d", &tcourant->nbPersonnes);
+    while (!feof(fboisson)){       
+        fscanf(fboisson, "%2d", &bcourant->nbPersonnes);
         
-        tsuivant = malloc(sizeof(table));
-        tcourant->suivant = tsuivant;
-        tcourant = tsuivant;
-        fscanf(ftab, "%2d", &tcourant->num);
+        bsuivant = malloc(sizeof(table));
+        bcourant->suivant = bsuivant;
+        bcourant = bsuivant;
+        fscanf(fboisson, "%2d", &bcourant->num);
     }
-    //affectation de la premiere structure de la liste à tcourant
-    tcourant = tdeb;
+    //affectation de la premiere structure de la liste à bcourant
+    bcourant = tdeb;
 
-    return tcourant;
+    return bcourant;
 }
 
 personnel * lecturePersonnel(){
@@ -122,9 +122,9 @@ void identification(){
 
 void reservation(){
     //Ouverture des fichiers nécéssaires
-    FILE *fres, *ftables;
+    FILE *fres, *fboissonles;
     fres = fopen("reservation.res", "w");
-    ftables = fopen("tables.dat", "r");
+    fboissonles = fopen("tables.dat", "r");
 
     //Déclaration des variables
     int nbPersonne, persTable, numTable;
@@ -137,13 +137,13 @@ void reservation(){
     scanf("%2d", &nbPersonne);
 
     //Rechercher parmis les tables
-    fscanf(ftables, "%2d %2d", &numTable, &persTable);
-    while (!feof(ftables)){
+    fscanf(fboissonles, "%2d %2d", &numTable, &persTable);
+    while (!feof(fboissonles)){
 
         if (persTable >= nbPersonne){
             
         }
 
-        fscanf(ftables, "%2d %2d", &numTable, &persTable);
+        fscanf(fboissonles, "%2d %2d", &numTable, &persTable);
     }
 }
