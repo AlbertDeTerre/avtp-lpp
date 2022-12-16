@@ -1,0 +1,10 @@
+1 checker si le jours existe bien -> oui: continue - non: boucle infini jusqu'a ce que le jour soit ok
+2 Lire le jour (d'office 6 -> tous sauf lundi)
+3 Lire le nb de reservation -> boucle for jusqu'au nb de reservations
+
+
+
+fichier reservations.dat:
+
+xxxxxxxx xx    xx xx xx ...
+  JOUR  nbRec  nums tables
