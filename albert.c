@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 //Structure table
 typedef struct table{
@@ -20,31 +21,18 @@ typedef struct personnel{
 int main()
 {
     //Ouverture des fichiers
-<<<<<<< HEAD
-    FILE *fboisson, *fmenu, *fboi, *fpersonnel, *fhoraire;
-    fboisson = fopen("tables.dat", "r");
-    fmenu = fopen("menu.dat", "r");
-    fboi = fopen("boisson.dat", "r");
-    fpersonnel = fopen("personnel.dat", "r");
-    fhoraire = fopen("horaire.dat", "r");
-    
-    //Déclaration des fonctions et variables;
-    int running = 1;
-    table *tdeb, *bcourant;
-=======
     FILE *ftab, *fmenu, *fboi, *fpersonnel, *fhoraire;
     
     //Déclaration des fonctions et variables;
     int running = 1, identification();
     void reservation(table*);
     table *tdeb, *tcourant;
->>>>>>> 5565da5b5a61f6a719a71192a2f40f906e72c371
     personnel *pdeb, *pcourant;
     table * lectureTable();
     personnel * lecturePersonnel();
     
     //Lecture du fichiers reprenant les tables dans la fonction lectureTable()
-    bcourant = lectureTable();
+    tcourant = lectureTable();
     pcourant = lecturePersonnel();
 
     //Si la personne s'identifie bien, on rentre dans la boucle, sinon one ne rentre pas dedans
@@ -52,14 +40,9 @@ int main()
 
     while (running == 1)
     {
-        int option;
-        printf("\nQue voulez vous faire ? (1: RESERVATION | 2: COMMANDE | 0: QUITTER)\n");
+        int option = 3;
+        printf("\nQue voulez vous faire ? (1: RESERVATION | 2: COMMANDE | AUTRE: QUITTER)\n");
         scanf("%d", &option);
-
-        while (option != 1 && option != 2 && option != 0){
-            printf("Que voulez vous faire ? (1: RESERVATION | 2: COMMANDE | AUTRE: QUITTER)\n");
-            scanf("%d", &option);
-        }
 
         //L'utilisateur veut encoder une réservation
         if(option == 1){
@@ -67,60 +50,37 @@ int main()
 
         //L'utilisateur veut encoder une commande
         }else if(option == 2){
-            
+
 
         //L'utilisateur veut quitter le programme
         }else{
             break;
         }
-        
+
         running = 0;
     }
 
-    printf("\n\n** FIN DU PROGRAMME **\n");
+    printf("\n** FIN DU PROGRAMME **\n");
 }
 
 table * lectureTable(){
 
     //Ouverture du fichier qui va être lu ("table.dat")
-<<<<<<< HEAD
-    FILE *fboisson;
-    fboisson = fopen("tables.dat", "r");
-=======
     FILE *ftab;
     ftab = fopen("VoiturierPlasschaertTables.dat", "r");
-    int num;
->>>>>>> 5565da5b5a61f6a719a71192a2f40f906e72c371
+    int num, n = 0;
 
     //Déclaration des différentes structures
-    table *tdeb, *bcourant, *bsuivant;
+    table *tdeb, *tcourant, *tsuivant;
 
     //Lecture du fichier et affectation des différentes valeurs lues dans les variables de la structure table
-<<<<<<< HEAD
-    bcourant = malloc(sizeof(table));
-    tdeb = bcourant;
-    fscanf(fboisson, "%2d", &bcourant->num);
-
-    //Commencement de la boucle de lecture
-    while (!feof(fboisson)){       
-        fscanf(fboisson, "%2d", &bcourant->nbPersonnes);
-        
-        bsuivant = malloc(sizeof(table));
-        bcourant->suivant = bsuivant;
-        bcourant = bsuivant;
-        fscanf(fboisson, "%2d", &bcourant->num);
-    }
-    //affectation de la premiere structure de la liste à bcourant
-    bcourant = tdeb;
-
-    return bcourant;
-=======
     tcourant = malloc(sizeof(table));
     tdeb = tcourant;
     fscanf(ftab, "%2d", &num);
 
     //Commencement de la boucle de lecture
     while (!feof(ftab)){ 
+        n++;
         tcourant->num = num;      
         fscanf(ftab, "%2d", &tcourant->nbPersonnes);
         tsuivant = malloc(sizeof(table));
@@ -128,9 +88,14 @@ table * lectureTable(){
         tcourant = tsuivant;
         fscanf(ftab, "%2d", &num);
     }
-    tcourant = NULL;
+
+    tcourant = tdeb;
+    for (int i = 0; i < n; i++){
+        tcourant = tcourant->suivant;
+    }
+    tcourant->suivant = NULL;
+
     return tdeb;
->>>>>>> 5565da5b5a61f6a719a71192a2f40f906e72c371
 }
 
 personnel * lecturePersonnel(){
@@ -190,11 +155,6 @@ int identification(){
 void reservation(table * courant){
 
     //Ouverture des fichiers nécéssaires
-<<<<<<< HEAD
-    FILE *fres, *fboissonles;
-    fres = fopen("reservation.res", "w");
-    fboissonles = fopen("tables.dat", "r");
-=======
     FILE *fres, *fdat, *fjours;
     fjours = fopen("VoiturierPlasschaertJours.dat", "r");
     fres = fopen("VoiturierPlasschaertReservations.res", "a");
@@ -203,86 +163,118 @@ void reservation(table * courant){
     int reservations[8][50], existe = 0;
     char jours[8][10];
 
-    //Initialise le vecteur comprenant chaque jours de la semaine
-    for (int i = 1; i <= 7; i++){
-        fscanf(fjours, "%10s", jours[i]);
-    }
->>>>>>> 5565da5b5a61f6a719a71192a2f40f906e72c371
-
     //Déclaration des variables
-    int nbPersonnes, persTable, numTable, min = 999999, nbTables;
+    int nbPersonnes = 999999, numTableChoisie = 0, min = 999999, tablesRes[50], nbTablesRes, resReussie = 0;
     char jour[10], jourFichier[10];
 
     //Demande à l'utilisateur pour combien de personne le client à reserver
     printf("\nJour de la réservation: ");
     scanf("%9s", jour);
 
-<<<<<<< HEAD
-    //Rechercher parmis les tables
-    fscanf(fboissonles, "%2d %2d", &numTable, &persTable);
-    while (!feof(fboissonles)){
-=======
-    while(existe == 0){
-        printf("\nCe jour n'existe pas !\nJour de la réservation: ");
+    for (int i = 0; i < 10; i++){
+        if (jour[i] == '\0'){
+            break;
+        }
+        jour[i] = toupper(jour[i]);
+    }
+
+    //Initialise le vecteur comprenant chaque jours de la semaine
+    for (int i = 1; i <= 7; i++){
+        fscanf(fjours, "%10s", jours[i]);
+
+        if (strcmp(jours[i], jour) == 0){
+            existe = 1;
+        }
+    }
+
+    //SI le jour est lundi
+    if (strcmp(jour, "LUNDI") == 0){
+        printf("\nLe restaurant n'est pas ouvert le lundi !");
+        existe = 0;
+    }
+
+    while (existe == 0)
+    {
+        //Demande le jour de la réservation;
+        printf("\nJour de la réservation: ");
         scanf("%9s", jour);
+
+        //Met le jour en MAJ
+        for (int i = 0; i < 10; i++){
+            if (jour[i] == '\0'){
+                break;
+            }
+            jour[i] = toupper(jour[i]);
+        }
+
+        //Série de test pour voir si le jour est OK
         for (int i = 1; i <= 7; i++){
             if (strcmp(jours[i], jour) == 0){
-                if (i == 1){
-                    printf ("\nPas de service le LUNDI !");
-                }else{
-                    existe = 1;
+                if (strcmp((jour), "LUNDI") == 0){
+                    printf("\nLe restaurant n'est pas ouvert le lundi !");
                     break;
                 }
+
+                existe = 1;
             }
         }
     }
->>>>>>> 5565da5b5a61f6a719a71192a2f40f906e72c371
-
-
+    
+    //Demande le nombre de personnes
     printf("\nNombre de personnes: ");
     scanf("%2d", &nbPersonnes);
 
-    //On parcours le fichier des reservations a la recherche du jours choisi
+    //Initialisation d'un liste des tables déjà réservées le jour voulu
     for (int i = 1; i <= 7; i++){
-        fscanf(fdat, "%10s %2d", &jourFichier, &nbTables);
+        fscanf(fdat, "%9s", jours[i]);
 
-        //Compare si le jour entré par l'utilisateur = celui lu dans le fichier
-        if (strcmp(toupper(jourFichier), toupper(jour)) == 0){
-            for (int i = 0; i < nbTables; i++){
-                fscanf(fdat, "%2d", &numTable);
-                
-                if ((courant->nbPersonnes >= nbPersonnes) && (courant->nbPersonnes < min)){
-                    
-                    min = courant->nbPersonnes;
-                    tableChoisie = courant;
-                 }
+        if (strcmp(jours[i], jour) == 0){
+            fscanf(fdat, "%2d", &nbTablesRes);
+            for (int j = 0; j < nbTablesRes; j++){
+                fscanf(fdat, "%2d", &tablesRes[j]);
+            }
+            break;
+        }else{
+            fscanf(fdat, "%*[^\n]\n");
+        }
+    }
 
+    //Parcours la liste de des tables a la recherche d'une table assez grande et regarde si elle est déjà prise
+    while(courant->suivant != NULL){
+        int reservee = 0;
+        for (int i = 0; i < nbTablesRes; i++){
+            if (tablesRes[i] == courant->num){
+                reservee = 1;
+                break;
             }
         }
-
-<<<<<<< HEAD
-        fscanf(fboissonles, "%2d %2d", &numTable, &persTable);
-    }
-}
-=======
-    }
-
-    //Rechercher parmis les tables
-    deb = courant;
-    while (courant != NULL){
-        if ((courant->nbPersonnes >= nbPersonnes) && (courant->nbPersonnes < min)){
+        //La variable min sert à essayer d'optimiser le nombre de personne par table pour ne pas donner une table trop grande à un groupe
+        if (reservee == 0 && courant->nbPersonnes >= nbPersonnes && courant->nbPersonnes < min){
+            resReussie = 1;
             min = courant->nbPersonnes;
-            tableChoisie = courant;
+            numTableChoisie = courant->num;
+            if (courant->nbPersonnes == nbPersonnes){
+                break;
+            }
         }
-
         courant = courant->suivant;
     }
 
-    if (min == 999){
+    int reserverPlat = 2;
 
+    //Demande si l'utilisateur veut réserver les plats à l'avance
+    printf("\nLe plat à t il été réservé à l'avance ? (1: OUI | 0:NON)\n");
+    scanf("%d", &reserverPlat);
+
+    while (reserverPlat != 0 && reserverPlat != 1){
+        printf("\nVoulez vous réserver un plat à l'avance ? (1: OUI | 0:NON)\n");
+        scanf("%d", &reserverPlat);
     }
 
-    printf("\nTable choisie: %2d", tableChoisie->num);
+    if (reserverPlat == 0){
+        return;
+    }
+
+
 
 }
->>>>>>> 5565da5b5a61f6a719a71192a2f40f906e72c371
