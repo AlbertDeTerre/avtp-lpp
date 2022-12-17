@@ -4,11 +4,36 @@
 #include <time.h>
 int i,j; //declaration general pour les compteurs
 //structure table 
+
+
+typedef struct platticket{
+	int id; //id du plats
+	char nom[35]; //nom du plat
+	float prix; //prix du menu
+}platticket;
+
+
+typedef struct boissonticket{
+	int id; //id de la boisson
+	char nom[35]; //nom de la boisson
+	float prix; //prix de la boisson
+}boissonticket;
+
+
+typedef struct ticket{
+	int id,nbplat,nbboisson,tab; 	//id de la commande,nombre de plat, nombre de boisson,table concernée
+	float prixtotal;			//prix total de la commande
+	struct platticket plat[60]; 		//boisson commandée
+	struct boissonticket boisson[60];       //plat commandé
+					
+}ticket;
 typedef struct table{
     int num;                    //NumÃ©ro de la table
     int nbPersonnes;            //Nombre de personnes pouvant Ãªtre Ã  cette table
     struct table *suivant;      //Table suivant de la liste chainÃ©e
+    struct ticket ticket;
 }table;
+
 
 //structure de boisson
 typedef struct boisson{
@@ -18,6 +43,9 @@ typedef struct boisson{
 	struct boisson *suivant;
 }boisson;
 
+
+
+
 typedef struct plat{
 	int id; //id du plats
 	char nom[35]; //nom du plat
@@ -25,22 +53,8 @@ typedef struct plat{
 	struct plat *suivant; 
 }plat;
 
-typedef struct commande{
-	int id,nbplat,nbboisson,tab; 	//id de la commande,nombre de plat, nombre de boisson,table concernée
-	float prixtotal;			//prix total de la commande
-	struct boisson *boisson[20]; 		//boisson commandée
-	struct plat *plat[18];       //plat commandé
-	struct commande *suivant;
-	
-					
-}commande;
 
 
-typedef struct ticket{
-	int id;						//id du ticket
-	commande commande[15];		//vecteur avec les commandes du ticket
-
-}ticket;
 
 
 void ecriturelisteBoi(boisson *bcourant){
@@ -136,18 +150,21 @@ plat * lecturePlat(){
 	
 }
 
-void faireCommande(plat *pcourant, boisson *bcourant, commande *ccourant){
+void faireCommande(plat *pcourant, boisson *bcourant, table *tcourant){
 	int tab, type, id,comsui=0;
 	
 	boisson *bdeb,*bsuivant;
 	plat  *pdeb,*psuivant;
-	commande *cdeb,*csuivant;
+	table *tdeb,*suivant;
+	void ajoutart(int, int , int, plat*, boisson*,table*);
 
-	void ajoutart(int, int , int, plat*, boisson*,commande*,int comsui);
+
 
 	//demande de la table.
 	printf("Veillez entrer la table concernee :  \n");
 	scanf("%2d",&tab);
+	
+	//todo lire fichier table pour le nombre de table 
 	if((tab>=1)&&(tab<=10)){
 		
 		//demande si plat ou boisson (si 0 stop la commande
@@ -159,11 +176,10 @@ void faireCommande(plat *pcourant, boisson *bcourant, commande *ccourant){
 				printf("Entrez l'id de l'article : \n");
 				scanf("%d",&id);
 				//appel de la fonction d'ajout à une commande.
-				ajoutart(tab,type,id, pcourant,bcourant,ccourant,comsui);
+				ajoutart(tab,type,id, pcourant,bcourant,tcourant);
 				
 				printf("Tapez 1 pour un plat, 2 pour une boisson et 0 pour arreter l'encodage: \n");
 				scanf("%d",&type);
-				comsui ++;
 			}
 			else{
 				printf("Entrez une donnee valide ! \nTapez 1 pour un plat, 2 pour une boisson et 0 pour arreter l'encodage: \n");
@@ -176,62 +192,43 @@ void faireCommande(plat *pcourant, boisson *bcourant, commande *ccourant){
 }
 
 
-ajoutart(int tab, int type, int id, plat *pcourant, boisson *bcourant, commande *ccourant,int comsui){
-	commande *csuivant,*cdeb;
+void ajoutart(int tab, int type, int id, plat *pcourant, boisson *bcourant, table *tcourant){
 	int taille;
 	plat *psuivant, *pdeb;
+	boisson *bsuivant,*bdeb;
 	pdeb = pcourant;
-	//Verification si nouvelle commande.
-	printf("%2d\n",comsui);
+	bdeb = bcourant;
 	
-	if(comsui==0){
-		csuivant = malloc(sizeof(commande));
-        ccourant->suivant = csuivant;
-        i++;
-        ccourant = csuivant;
-      	ccourant->prixtotal=0;
-	}
-	
-	i=0;
-	//ajout des donnees dans commande
-	if(type ==1){
-		while(pcourant!= NULL){
-			//printf("%2d %s %5.2f\n",pcourant->id, pcourant->nom, pcourant->prix);
-			pcourant = pcourant->suivant;
-			i++;
-			
-		}
+	while(tcourant->num != tab){
+		tcourant = tcourant->suivant;
 		
-		taille = i;
-		pcourant = pdeb;
-		if(id<=taille){
-			while(id != pcourant->id){
-	        	pcourant = pcourant->suivant;
-				printf("%5.2f parcourlist\n",pcourant->prix);
-			}
-			
-			ccourant->id = tab;
-			ccourant->plat[comsui] = pcourant;
-			ccourant->nbplat ++;
-			printf("%5.2f prixtt\n",ccourant->prixtotal);
-			ccourant->prixtotal += pcourant->prix;
-			
-			printf("%5.2f   %5.2f\n",ccourant->prixtotal, pcourant->prix);
-		}
-		else
-			printf("Ce plat n'existe pas.");
 	}
+	
+	if(type ==1){
+		while(pcourant->id != id){
+			pcourant = pcourant->suivant;
+		}
+		tcourant->ticket.nbplat ++;
+		tcourant->ticket.plat[tcourant->ticket.nbplat].id = pcourant->id;
+		strcpy(tcourant->ticket.plat[tcourant->ticket.nbplat].nom,pcourant->nom);
+		tcourant->ticket.plat[tcourant->ticket.nbplat].prix = pcourant->prix;
+		tcourant->ticket.prixtotal += pcourant->prix;
+		
+		printf("%2d %5.2f %s %5.2f",tcourant->ticket.plat[tcourant->ticket.nbplat].id,tcourant->ticket.plat[tcourant->ticket.nbplat].nom, tcourant->ticket.plat[tcourant->ticket.nbplat].prix, tcourant->ticket.prixtotal);
+		//todo je vais faire un gros dodo 
+	}
+	
 	
 }
 
-void faireTicket(commande *ccourant){
+void faireTicket(table*table ){
 	//ouverture des fichiers.
 	FILE*fdirect, *fcaisse;
 	fdirect = fopen("VoiturierPlasschaertTicketCli.res","w");
 	fcaisse = fopen("VoiturierPlasschaertTicketCaisse.res","a");
 	//decla des variables
-	commande *cdeb;
-	cdeb = ccourant;
+	
+	
 	
 	//Fonction qui affiche la date et l'heure du ticket
 	time_t timer;
@@ -242,20 +239,59 @@ void faireTicket(commande *ccourant){
 	strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
 	fprintf(fdirect,"      %s ",buffer);
 	
+	
+	
+	
+	
+}
+
+table * lectureTable(){
+
+    //Ouverture du fichier qui va Ãªtre lu ("table.dat")
+    FILE *ftab;
+    ftab = fopen("VoiturierPlasschaertTables.dat", "r");
+    int num, n = 0;
+
+    //DÃ©claration des diffÃ©rentes structures
+    table *tdeb, *tcourant, *tsuivant;
+
+    //Lecture du fichier et affectation des diffÃ©rentes valeurs lues dans les variables de la structure table
+    tcourant = malloc(sizeof(table));
+    tdeb = tcourant;
+    fscanf(ftab, "%2d", &num);
+
+    //Commencement de la boucle de lecture
+    while (!feof(ftab)){ 
+        n++;
+        tcourant->num = num;      
+        fscanf(ftab, "%2d", &tcourant->nbPersonnes);
+        tsuivant = malloc(sizeof(table));
+        tcourant->suivant = tsuivant;
+        tcourant = tsuivant;
+        fscanf(ftab, "%2d", &num);
+    }
+
+    tcourant = tdeb;
+    for (i = 0; i < n; i++){
+        tcourant = tcourant->suivant;
+    }
+    tcourant->suivant = NULL;
+
+    return tdeb;
 }
 
 
 
-
 main(){
-	void faireTicket( commande *);
+	void faireTicket(table *table);
 	boisson *bcourant,*bdeb,*bsuivant;
 	bcourant = lectureBoisson();
 	plat *pcourant, *pdeb,*psuivant;
 	pcourant = lecturePlat();
-	commande *ccourant, *cdeb,*csuivant;
-	ccourant = malloc(sizeof(commande));
-    cdeb = ccourant;
+	table *tcourant,*tdeb,*tsuivant;
+	tcourant = lectureTable();
+	
+    
 
     
 //    while (bcourant!=NULL){       
@@ -271,8 +307,8 @@ main(){
 //        
 //        
 //    }
-	faireTicket(cdeb);
-	faireCommande(pcourant, bcourant, ccourant);
+	
+	faireCommande(pcourant, bcourant,tcourant);
     
     
     
