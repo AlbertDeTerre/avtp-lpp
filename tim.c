@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-
+int i,j; //declaration general pour les compteurs
 //structure table 
 typedef struct table{
     int num;                    //Numéro de la table
@@ -45,14 +45,14 @@ typedef struct ticket{
 
 
 void ecriturelisteBoi(boisson *bcourant){
-	int i=0;
+	
 	boisson *bdeb, *bsuivant;
 	
-	while (i<=sizeof(boisson)){       
+	while (bcourant!=NULL){       
         printf("%2d %s %5.2f\n",bcourant->id, bcourant->nom,bcourant->prix);
         
         bcourant = bcourant->suivant;
-        i++;
+        
         
     }
 }
@@ -73,18 +73,23 @@ boisson * lectureBoisson(){
     
     fscanf(fboisson, "%2d", &bcourant->id);
     
-    
+    i=0;
     //Commencement de la boucle de lecture
     while (!feof(fboisson)){       
         fscanf(fboisson, "%s %f", &bcourant->nom,&bcourant->prix);
         
         bsuivant = malloc(sizeof(boisson));
         bcourant->suivant = bsuivant;
+		i++;
         bcourant = bsuivant;
         fscanf(fboisson, "%2d", &bcourant->id);
         
     }
+    //mise Null dans le dernier element;
     bcourant = bdeb;
+    for(j=1;j<i;j++){
+    	bcourant = bcourant->suivant;}
+	bcourant->suivant =NULL;
     //affectation de la premiere structure de la liste à bcourant
     
 
@@ -108,18 +113,23 @@ plat * lecturePlat(){
     pcourant = malloc(sizeof(plat));
     pdeb = pcourant;
     fscanf(fplat, "%2d", &pcourant->id);
-    
+    i=0;
     
     //Commencement de la boucle de lecture
     while (!feof(fplat)){       
         fscanf(fplat, "%s %f", &pcourant->nom,&pcourant->prix);
         psuivant = malloc(sizeof(plat));
         pcourant->suivant = psuivant;
+        i++;
         pcourant = psuivant;
         fscanf(fplat, "%2d", &pcourant->id);
     }
-    //affectation de la premiere structure de la liste à bcourant
+    //affectation de la premiere structure de la liste pcourant
     pcourant = pdeb;
+    for(j=0;j<i;j++){
+    	pcourant = pcourant->suivant;
+	}
+	pcourant->suivant = NULL;
     return pcourant;
 	
 }
@@ -164,44 +174,68 @@ commande *faireCommande(){
 
 void ajoutart(int type, int id, int tab){
 
-	//decla variable;
+	//decla variable puis remise au premier therme.
 	boisson *bcourant,*bdeb,*bsuivant;
 	bcourant = lectureBoisson();
+	bcourant = bdeb;
 	plat *pcourant, *pdeb,*psuivant;
 	pcourant = lecturePlat();
+	pcourant = pdeb;
 	commande *ccourant, *cdeb,*csuivant;
-	
-	
-	
+	int taille; 
+	printf("%2d",pcourant->id);
 	//creation de la commande
 	ccourant = malloc(sizeof(commande));
     cdeb = ccourant;
+    
     //ajout de la table concernee 
     ccourant->id = tab;
     ccourant->nbboisson =0;
     ccourant->nbplat = 0;
-    printf("%2d ",sizeof(plat));
+    
     //ajout du plat
     if(type == 1){
-    	//verification que le plat existe
-    	if(id < sizeof(plat)){
-    	//boucle qui recherche le bon plat.
-    	while(id != pcourant->id){
-    		
-        	pcourant = pcourant->suivant;
-        	printf("%2d",pcourant->id);
+    	//boucle pour connaitre la taille de la chaine
+	    while(pcourant->suivant != NULL){
+			pcourant = pcourant->suivant;
+			printf("%2d %s %5.2f\n",pcourant->id, pcourant->nom, pcourant->prix);
+			
 		}
-		//ajout du plat dans la commande
-		ccourant->nbplat +=1;
-		ccourant->plat[ccourant->nbplat] = pcourant;
+		taille = pcourant->id;
+		pcourant = pdeb;
+		//printf("%3d",taille);
 		
-	}
+    	//verification que le plat existe
+    	if(id<=taille){
+    		
+	    	//boucle qui recherche le bon plat.
+	    	while(id != pcourant->id){
+	        	pcourant = pcourant->suivant;
+	        	printf("%2d",pcourant->id);
+			}
+			
+			//ajout du plat dans la commande
+			ccourant->nbplat +=1;
+			ccourant->plat[ccourant->nbplat] = pcourant;
+		}
+		
+		//si le plat n'existe pas 
 	else{
-		printf("Ce plat n'existe pas.");
+		printf("Ce plat n'existe pas.\n");
 	}
 	}
 	else if(type == 2){
-		if(id <= sizeof(boisson)){
+		
+		//boucle pour connaitre la taille de la chaine
+	    while(bcourant != NULL){
+			bcourant = bcourant->suivant;	
+		}
+		taille = bcourant->id;
+		bcourant = bdeb;
+		printf("%3d",taille);
+		
+		if(id <=taille){
+			
 		
 	    	while(id != bcourant->id){
 	    		
@@ -211,7 +245,7 @@ void ajoutart(int type, int id, int tab){
 			ccourant->boisson[ccourant->nbboisson] = bcourant;
 		}
 		else{
-			printf("Cette boisson n'existe pas");
+			printf("Cette boisson n'existe pas\n");
 		}
 	}
 	else{
