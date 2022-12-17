@@ -68,7 +68,7 @@ table * lectureTable(){
     //Ouverture du fichier qui va être lu ("table.dat")
     FILE *ftab;
     ftab = fopen("VoiturierPlasschaertTables.dat", "r");
-    int num;
+    int num, n = 0;
 
     //Déclaration des différentes structures
     table *tdeb, *tcourant, *tsuivant;
@@ -80,6 +80,7 @@ table * lectureTable(){
 
     //Commencement de la boucle de lecture
     while (!feof(ftab)){ 
+        n++;
         tcourant->num = num;      
         fscanf(ftab, "%2d", &tcourant->nbPersonnes);
         tsuivant = malloc(sizeof(table));
@@ -87,7 +88,13 @@ table * lectureTable(){
         tcourant = tsuivant;
         fscanf(ftab, "%2d", &num);
     }
-    tcourant = NULL;
+
+    tcourant = tdeb;
+    for (int i = 0; i < n; i++){
+        tcourant = tcourant->suivant;
+    }
+    tcourant->suivant = NULL;
+
     return tdeb;
 }
 
@@ -157,13 +164,12 @@ void reservation(table * courant){
     char jours[8][10];
 
     //Déclaration des variables
-    int nbPersonnes = 999999, persTable, numTable, numTableChoisie = 0, min = 999999, nbTables, tablesRes[8][50], nbTablesRes[8];
+    int nbPersonnes = 999999, numTableChoisie = 0, min = 999999, tablesRes[50], nbTablesRes, resReussie = 0;
     char jour[10], jourFichier[10];
 
     //Demande à l'utilisateur pour combien de personne le client à reserver
     printf("\nJour de la réservation: ");
     scanf("%9s", jour);
-    printf("%10s", jour);
 
     for (int i = 0; i < 10; i++){
         if (jour[i] == '\0'){
@@ -218,57 +224,57 @@ void reservation(table * courant){
     printf("\nNombre de personnes: ");
     scanf("%2d", &nbPersonnes);
 
-    //TODO: REGARDER SI LES TABLES SONT DéJA CHOISIES
+    //Initialisation d'un liste des tables déjà réservées le jour voulu
     for (int i = 1; i <= 7; i++){
-        fscanf(fdat, "%9s %2d", jourFichier, nbTablesRes[i]);
+        fscanf(fdat, "%9s", jours[i]);
 
-        for (int j = 0; j < nbTablesRes; j++){
-            fscanf(fdat, "%2d", &tablesRes[i][j]);
+        if (strcmp(jours[i], jour) == 0){
+            fscanf(fdat, "%2d", &nbTablesRes);
+            for (int j = 0; j < nbTablesRes; j++){
+                fscanf(fdat, "%2d", &tablesRes[j]);
+            }
+            break;
+        }else{
+            fscanf(fdat, "%*[^\n]\n");
         }
     }
 
-    
+    //Parcours la liste de des tables a la recherche d'une table assez grande et regarde si elle est déjà prise
+    while(courant->suivant != NULL){
+        int reservee = 0;
+        for (int i = 0; i < nbTablesRes; i++){
+            if (tablesRes[i] == courant->num){
+                reservee = 1;
+                break;
+            }
+        }
+        //La variable min sert à essayer d'optimiser le nombre de personne par table pour ne pas donner une table trop grande à un groupe
+        if (reservee == 0 && courant->nbPersonnes >= nbPersonnes && courant->nbPersonnes < min){
+            resReussie = 1;
+            min = courant->nbPersonnes;
+            numTableChoisie = courant->num;
+            if (courant->nbPersonnes == nbPersonnes){
+                break;
+            }
+        }
+        courant = courant->suivant;
+    }
 
-    
+    int reserverPlat = 2;
 
-    printf("%2d", numTableChoisie);
+    //Demande si l'utilisateur veut réserver les plats à l'avance
+    printf("\nLe plat à t il été réservé à l'avance ? (1: OUI | 0:NON)\n");
+    scanf("%d", &reserverPlat);
+
+    while (reserverPlat != 0 && reserverPlat != 1){
+        printf("\nVoulez vous réserver un plat à l'avance ? (1: OUI | 0:NON)\n");
+        scanf("%d", &reserverPlat);
+    }
+
+    if (reserverPlat == 0){
+        return;
+    }
 
 
-    // //On parcours le fichier des reservations a la recherche du jours choisi
-    // for (int i = 1; i <= 7; i++){
-    //     fscanf(fdat, "%10s %2d", &jourFichier, &nbTables);
-
-    //     //Compare si le jour entré par l'utilisateur = celui lu dans le fichier
-    //     if (strcmp(toupper(jourFichier), toupper(jour)) == 0){
-    //         for (int i = 0; i < nbTables; i++){
-    //             fscanf(fdat, "%2d", &numTable);
-                
-    //             if ((courant->nbPersonnes >= nbPersonnes) && (courant->nbPersonnes < min)){
-                    
-    //                 min = courant->nbPersonnes;
-    //                 tableChoisie = courant;
-    //              }
-
-    //         }
-    //     }
-
-    // }
-
-    // //Rechercher parmis les tables
-    // deb = courant;
-    // while (courant != NULL){
-    //     if ((courant->nbPersonnes >= nbPersonnes) && (courant->nbPersonnes < min)){
-    //         min = courant->nbPersonnes;
-    //         tableChoisie = courant;
-    //     }
-
-    //     courant = courant->suivant;
-    // }
-
-    // if (min == 999){
-
-    // }
-
-    // printf("\nTable choisie: %2d", tableChoisie->num);
 
 }
