@@ -260,21 +260,6 @@ void reservation(table * courant){
         courant = courant->suivant;
     }
 
-    int reserverPlat = 2;
-
-    //Demande si l'utilisateur veut réserver les plats à l'avance
-    printf("\nLe plat à t il été réservé à l'avance ? (1: OUI | 0:NON)\n");
-    scanf("%d", &reserverPlat);
-
-    while (reserverPlat != 0 && reserverPlat != 1){
-        printf("\nVoulez vous réserver un plat à l'avance ? (1: OUI | 0:NON)\n");
-        scanf("%d", &reserverPlat);
-    }
-
-    if (reserverPlat == 0){
-        return;
-    }
-
-
+    
 
 }
