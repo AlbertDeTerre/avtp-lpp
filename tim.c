@@ -136,10 +136,10 @@ plat * lecturePlat(){
 
 
 
-commande *faireCommande(){
+void faireCommande(boisson *bcouranrt, plat *pcourant, commande *ccourant){
 	//declaration des variables 
 	int contu,id,tab;
-	void ajoutart(int, int,int);
+	void ajoutart(int, int,int,boisson *, plat *, commande *);
 	
 	//Demande de la table concernée
 	printf("Entrez la table concernée:\n");
@@ -157,8 +157,8 @@ commande *faireCommande(){
 			
 			
 			
-				//ajout de l'article dans la commande
-			ajoutart(contu,id,tab);
+			//ajout de l'article dans la commande
+			ajoutart(contu,id,tab,&bcourant, &pcourant, &ccourant);
 			
 			
 		}
@@ -172,7 +172,7 @@ commande *faireCommande(){
 
 
 
-void ajoutart(int type, int id, int tab){
+void ajoutart(int type, int id, int tab,boisson *bcourant,plat *pcourant, commande *ccourant){
 
 	//decla variable puis remise au premier therme.
 	boisson *bcourant,*bdeb,*bsuivant;
@@ -201,9 +201,10 @@ void ajoutart(int type, int id, int tab){
 			printf("%2d %s %5.2f\n",pcourant->id, pcourant->nom, pcourant->prix);
 			
 		}
+		
 		taille = pcourant->id;
 		pcourant = pdeb;
-		//printf("%3d",taille);
+		printf("%3d",taille);
 		
     	//verification que le plat existe
     	if(id<=taille){
@@ -286,7 +287,7 @@ void faireTicket(int tab){
         
         bcourant->suivant = bsuivant;
         bcourant = bsuivant;
-        ;
+        
     }
 }
 
@@ -304,10 +305,8 @@ main(){
 	commande *ccourant, *cdeb,*csuivant;
 	
 	//ecriturelisteBoi(bcourant);
-	
-	
-	faireCommande();
-	faireTicket(1);
+	faireCommande(&bcourant,&pcourant,&,ccourant);
+	faireTicket();
 	
 	//TODO faire id des plats 
 	
