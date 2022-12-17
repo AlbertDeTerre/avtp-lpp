@@ -157,16 +157,17 @@ void faireCommande(plat *pcourant, boisson *bcourant, commande *ccourant){
 			if((type==2)||(type==1)){
 				//demande de l'id de larticle
 				printf("Entrez l'id de l'article : \n");
-				scanf("%2d",&id);
+				scanf("%d",&id);
 				//appel de la fonction d'ajout à une commande.
 				ajoutart(tab,type,id, pcourant,bcourant,ccourant,comsui);
+				
 				printf("Tapez 1 pour un plat, 2 pour une boisson et 0 pour arreter l'encodage: \n");
-				scanf("%2d",&type);
+				scanf("%d",&type);
 				comsui ++;
 			}
 			else{
 				printf("Entrez une donnee valide ! \nTapez 1 pour un plat, 2 pour une boisson et 0 pour arreter l'encodage: \n");
-				scanf("%2d",&type);
+				scanf("%d",&type);
 			}
 		}
 		
@@ -181,14 +182,16 @@ ajoutart(int tab, int type, int id, plat *pcourant, boisson *bcourant, commande 
 	plat *psuivant, *pdeb;
 	pdeb = pcourant;
 	//Verification si nouvelle commande.
-	printf("%2d",comsui);
+	printf("%2d\n",comsui);
+	
 	if(comsui==0){
 		csuivant = malloc(sizeof(commande));
         ccourant->suivant = csuivant;
         i++;
         ccourant = csuivant;
+      	ccourant->prixtotal=0;
 	}
-
+	
 	i=0;
 	//ajout des donnees dans commande
 	if(type ==1){
@@ -196,14 +199,11 @@ ajoutart(int tab, int type, int id, plat *pcourant, boisson *bcourant, commande 
 			//printf("%2d %s %5.2f\n",pcourant->id, pcourant->nom, pcourant->prix);
 			pcourant = pcourant->suivant;
 			i++;
-			ccourant->prixtotal =0;
+			
 		}
 		
 		taille = i;
 		pcourant = pdeb;
-		
-			
-		
 		if(id<=taille){
 			while(id != pcourant->id){
 	        	pcourant = pcourant->suivant;
@@ -218,17 +218,37 @@ ajoutart(int tab, int type, int id, plat *pcourant, boisson *bcourant, commande 
 			
 			printf("%5.2f   %5.2f\n",ccourant->prixtotal, pcourant->prix);
 		}
+		else
+			printf("Ce plat n'existe pas.");
 	}
 	
 }
 
-void faireTicket(int id, commande *comcour){
+void faireTicket(commande *ccourant){
+	//ouverture des fichiers.
+	FILE*fdirect, *fcaisse;
+	fdirect = fopen("VoiturierPlasschaertTicketCli.res","w");
+	fcaisse = fopen("VoiturierPlasschaertTicketCaisse.res","a");
+	//decla des variables
+	commande *cdeb;
+	cdeb = ccourant;
+	
+	//Fonction qui affiche la date et l'heure du ticket
+	time_t timer;
+    char buffer[26];
+    struct tm* tm_info;
+    timer = time(NULL);
+    tm_info = localtime(&timer);
+	strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+	fprintf(fdirect,"      %s ",buffer);
+	
 }
 
 
 
 
 main(){
+	void faireTicket( commande *);
 	boisson *bcourant,*bdeb,*bsuivant;
 	bcourant = lectureBoisson();
 	plat *pcourant, *pdeb,*psuivant;
@@ -251,7 +271,7 @@ main(){
 //        
 //        
 //    }
-
+	faireTicket(cdeb);
 	faireCommande(pcourant, bcourant, ccourant);
     
     
