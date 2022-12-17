@@ -134,167 +134,41 @@ plat * lecturePlat(){
 	
 }
 
-
-
-void faireCommande(boisson *bcouranrt, plat *pcourant, commande *ccourant){
-	//declaration des variables 
-	int contu,id,tab;
-	void ajoutart(int, int,int,boisson *, plat *, commande *);
+void faireCommande(plat *pcourant, boisson *bcourant, commande ccourant){
+	int tab, type, id;
 	
-	//Demande de la table concernée
-	printf("Entrez la table concernée:\n");
+	//demande de la table.
+	printf("Veillez entrer la table concernee :  \n");
 	scanf("%2d",&tab);
-	//boucle tantque l'utilisateur n'interomp pas
-	contu = 1;
-	while(contu >=1){
-		//demande des données du plats/boisson
-		printf("Entrez 1 pour les plats, 2 pour les boissons\n");
-		scanf("%2d",&contu);
-		if((contu>=1)){
-			//id du plat
-			printf("Entrez l'id:");
-			scanf("%2d",&id);
-			
-			
-			
-			//ajout de l'article dans la commande
-			ajoutart(contu,id,tab,&bcourant, &pcourant, &ccourant);
-			
-			
-		}
-		}
-		//fin
-		printf("Commande finie.");
+	if((tab>=1)&&(tab<=10){
 		
-}
-
-
-
-
-
-void ajoutart(int type, int id, int tab,boisson *bcourant,plat *pcourant, commande *ccourant){
-
-	//decla variable puis remise au premier therme.
-	boisson *bcourant,*bdeb,*bsuivant;
-	bcourant = lectureBoisson();
-	bcourant = bdeb;
-	plat *pcourant, *pdeb,*psuivant;
-	pcourant = lecturePlat();
-	pcourant = pdeb;
-	commande *ccourant, *cdeb,*csuivant;
-	int taille; 
-	printf("%2d",pcourant->id);
-	//creation de la commande
-	ccourant = malloc(sizeof(commande));
-    cdeb = ccourant;
-    
-    //ajout de la table concernee 
-    ccourant->id = tab;
-    ccourant->nbboisson =0;
-    ccourant->nbplat = 0;
-    
-    //ajout du plat
-    if(type == 1){
-    	//boucle pour connaitre la taille de la chaine
-	    while(pcourant->suivant != NULL){
-			pcourant = pcourant->suivant;
-			printf("%2d %s %5.2f\n",pcourant->id, pcourant->nom, pcourant->prix);
-			
-		}
-		
-		taille = pcourant->id;
-		pcourant = pdeb;
-		printf("%3d",taille);
-		
-    	//verification que le plat existe
-    	if(id<=taille){
-    		
-	    	//boucle qui recherche le bon plat.
-	    	while(id != pcourant->id){
-	        	pcourant = pcourant->suivant;
-	        	printf("%2d",pcourant->id);
+		//demande si plat ou boisson (si 0 stop la commande
+		printf("Tapez 1 pour un plat, 2 pour une boisson et 0 pour arreter l'encodage: \n");
+		scanf("%2d",&type);
+		while(type != 0){
+			if((type==2)||(type==1)){
+				//demande de l'id de larticle
+				printf("Entrez l'id de l'article : \n");
+				scanf("%2d",&id);
+				//appel de la fonction d'ajout à une commande.
+				ajoutart(tab, type,id, &pcourant,&bcourant,&ccourant);
+				printf("Tapez 1 pour un plat, 2 pour une boisson et 0 pour arreter l'encodage: \n");
+				scanf("%2d",&type);
 			}
-			
-			//ajout du plat dans la commande
-			ccourant->nbplat +=1;
-			ccourant->plat[ccourant->nbplat] = pcourant;
-		}
-		
-		//si le plat n'existe pas 
-	else{
-		printf("Ce plat n'existe pas.\n");
-	}
-	}
-	else if(type == 2){
-		
-		//boucle pour connaitre la taille de la chaine
-	    while(bcourant != NULL){
-			bcourant = bcourant->suivant;	
-		}
-		taille = bcourant->id;
-		bcourant = bdeb;
-		printf("%3d",taille);
-		
-		if(id <=taille){
-			
-		
-	    	while(id != bcourant->id){
-	    		
-	        	bcourant = bcourant->suivant;
+			else{
+				printf("Entrez une donnee valide ! \nTapez 1 pour un plat, 2 pour une boisson et 0 pour arreter l'encodage: \n");
+				scanf("%2d",&type);
 			}
-			ccourant->nbboisson +=1;
-			ccourant->boisson[ccourant->nbboisson] = bcourant;
 		}
-		else{
-			printf("Cette boisson n'existe pas\n");
-		}
+		
+		
+		
+		
+		
 	}
-	else{
-		printf("erreur\n");
-	}
-    
-    
-}
-
-
-
-
-
-
-
-void faireTicket(int tab){
-	FILE*fdirect, *fcaisse;
-	fdirect = fopen("VoiturierPlasschaertTicketCli.res","w");
-	fcaisse = fopen("VoiturierPlasschaertTicketCaisse.res","a");
-	boisson *bcourant,*bdeb,*bsuivant;
-	bcourant = lectureBoisson();
-	plat *pcourant, *pdeb,*psuivant;
-	pcourant = lecturePlat();
-	commande *ccourant, *cdeb,*csuivant;
-	//Fonction qui affiche la date et l'heure du ticket
-	time_t timer;
-    char buffer[26];
-    struct tm* tm_info;
-    timer = time(NULL);
-    tm_info = localtime(&timer);
-	strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
-	fprintf(fdirect,"      %s ",buffer);
 	
-	bcourant = bdeb;
-	while (sizeof(boisson)){
-	       
-        printf("%2d %s %f",bcourant->id,bcourant->nom,bcourant->prix);
-        
-        bcourant->suivant = bsuivant;
-        bcourant = bsuivant;
-        
-    }
+	
 }
-
-
-
-
-
 
 
 main(){
@@ -304,15 +178,21 @@ main(){
 	pcourant = lecturePlat();
 	commande *ccourant, *cdeb,*csuivant;
 	
-	//ecriturelisteBoi(bcourant);
-	faireCommande(&bcourant,&pcourant,&,ccourant);
-	faireTicket();
-	
-	//TODO faire id des plats 
-	
-    
-    
-    
-
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
