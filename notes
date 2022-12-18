@@ -1,7 +1,80 @@
-1) check si jour est ok -> boucle for
-2) parcours la liste des tables
-  -> si table peut contenir assez de personnes
-  -> on la garde
-  -> check si elle est dispo
-  -> si oui, break;
-  -> si non, boucle continue
+RESTRUCTURATION DU PROJET
+=========================
+
+  1) STRUCTURES A FAIRE:
+
+    typedef struct listePlats{
+      int id;
+      char nom[50];
+      float prix;
+      struct listePlats *suivant;
+    }listePlats;
+
+    typedef struct listeBoissons{
+      int id;
+      char nom[50];
+      float prix;
+      struct listeBoissons *suivant;
+    }listeBoissons;
+
+    typedef struct boisson{
+      int id;
+      char nom[50];
+      float prix;
+    }boisson;
+
+    typedef struct plat{
+      int id;
+      char nom[50];
+      float prix;
+    }plat;
+
+    typedef struct ticket{
+        int table;
+        float prix;
+        struct plat plats[20];
+        struct boisson boissons[100];
+        struct ticket *suivant;
+    }ticket;
+
+  2) GESTION DE TICKET:
+    
+    - UN ticket est lié à UNE table lors du service
+    - L'utilisateur peut entrer une commande
+      -> Il doit spécifier s'il s'agit de boissons ou de plats
+      -> Il entre les id des plats/boissons qu'il veut ajouter au ticket
+      -> Un fichier "tickets" sera modifié une fois la commande encoder
+
+    - Structure du fichier "tickets":
+
+      04                      -> Numéro de la table
+      02                      -> nombre d'article commandés par cette table
+      Croque_Monsieur         -> nom du 1er article 
+      Coca                    -> nom du 2e article
+      14.50                   -> prix du ticket
+      06                      -> Numéro de la table d'après
+      etc...
+
+    - Liste chainée de tickets:
+
+      typedef struct ticket{
+        int table;
+        float prix;
+        struct plat plats[20];
+        struct boisson boissons[100];
+        struct ticket *suivant;
+      }
+
+    - Différentes features dans lesquelles on utilise les ticket:
+
+      afficherTicket() -> afficher le ticket d'une table à l'écran
+      lireTickets() -> lire les tickets dans le fichier "tickets"
+      ajouterAuTicket() -> ajouter des articles au ticket
+
+  3) GESTION DU PERSONNEL ET HORAIRES:
+
+    !!!!!!!!!!!!!!!!!! A FAIRE SEULEMENT SI ON A LE TEMPS !!!!!!!!!!!!!!!!!
+    
+  
+
+    
