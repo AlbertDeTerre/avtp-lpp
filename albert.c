@@ -26,9 +26,10 @@ int main()
     
     //Déclaration des fonctions et variables;
     int running = 1, identification(), jourSemaine(int, int, int);
-    void reservation(table*), annulerReservation();
+    void reservation(table*), annulerReservation(), ajouterPersonnel(), afficherPersonnel(personnel*);
     table *tdeb, *tcourant;
-    personnel *pdeb, *pcourant;
+    personnel *pcourant, *pdeb;
+    
     table * lectureTable();
     personnel * lecturePersonnel();
     
@@ -39,33 +40,73 @@ int main()
     //Si la personne s'identifie bien, on rentre dans la boucle, sinon one ne rentre pas dedans
     running = identification();
 
-    while (running == 1)
-    {
-        int option = 3;
-        printf("\nQue voulez vous faire ? (1: RESERVATION | 2: COMMANDE | AUTRE: QUITTER)\n");
-        scanf("%d", &option);
+    //Si c'est le gérant -> menu admin
+    if (running == 999){
+        running = 1;
+        while (running == 1)
+        {
+            int option = 3;
+            printf("\nQue voulez vous faire ? (1: RESERVATION | 2: COMMANDE | 3: PERSONNEL | AUTRE: QUITTER)\n");
+            scanf("%d", &option);
 
-        //L'utilisateur veut encoder une réservation
-        if(option == 1){
-            printf("1: AJOUTER UNE RESERVATION | 2: ANNULER UNE RESERVATION | AUTRE: QUITTER\n");
-            scanf("%2d", &option);
-            if (option == 1){
-                reservation(tcourant);
-            }else if (option == 2){
-                annulerReservation();
+            //L'utilisateur veut encoder une réservation
+            if(option == 1){
+                printf("1: AJOUTER UNE RESERVATION | 2: ANNULER UNE RESERVATION | AUTRE: QUITTER\n");
+                scanf("%2d", &option);
+                if (option == 1){
+                    reservation(tcourant);
+                }else if (option == 2){
+                    annulerReservation();
+                }
+
+            //L'utilisateur veut encoder une commande
+            }else if(option == 2){
+
+            //L'utilisateur veut changer le personnel;
+            }else if(option == 3){
+                printf("1: AJOUTER UN EMPLOYER | 2: LISTE DES EMPLOYES\n");
+                scanf("%d", &option);
+                if (option == 1){
+                    ajouterPersonnel(pcourant);
+                }else if(option == 2){
+                    afficherPersonnel(pcourant);
+                }
+            //L'utilisateur veut quitter le prog
+            }else{
+                break;
             }
-
-        //L'utilisateur veut encoder une commande
-        }else if(option == 2){
-
-
-        //L'utilisateur veut quitter le programme
-        }else{
-            break;
         }
+    //Si ce n'est qu'un simple employé -> menu employé 
+    }else if (running > 0){
+        running = 1;
+        while (running == 1)
+        {
+            
+            int option = 3;
+            printf("\nQue voulez vous faire ? (1: RESERVATION | 2: COMMANDE | AUTRE: QUITTER)\n");
+            scanf("%d", &option);
 
-        
+            //L'utilisateur veut encoder une réservation
+            if(option == 1){
+                printf("1: AJOUTER UNE RESERVATION | 2: ANNULER UNE RESERVATION | AUTRE: QUITTER\n");
+                scanf("%2d", &option);
+                if (option == 1){
+                    reservation(tcourant);
+                }else if (option == 2){
+                    annulerReservation();
+                }
+
+            //L'utilisateur veut encoder une commande
+            }else if(option == 2){
+
+
+            //L'utilisateur veut quitter le programme
+            }else{
+                break;
+            }
+        }
     }
+    
 
     printf("\n** FIN DU PROGRAMME **\n");
 }
@@ -150,7 +191,7 @@ int identification(){
         if (matEmp == matricule){
             printf("\n** IDENTIFICATION REUSSIE ! **\n");
             printf("Bienvenue dans le programme %-20s", prenom);
-            return 1;
+            return matricule;
         }
         fscanf(fdat, "%3d", &matEmp);
     }
@@ -304,13 +345,11 @@ void reservation(table * courant){
             }
             fprintf(fres, "\n");
         }
-
     }
-
     fclose(fres);
-
 }
 
+//Récupérer le numéro du jour de la semaine
 int jourSemaine(int jour, int mois, int annee){
     int joursemaine = (jour += mois < 3 ? annee-- : annee - 2, 23*mois/9 + jour + 4 + annee/4- annee/100 + annee/400)%7; 
     if (joursemaine == 0){
@@ -407,7 +446,76 @@ void annulerReservation(){
         }
         fprintf(freservW, "\n");
     }
-
     fclose(freservW);
+}
+
+void ajouterPersonnel(personnel * courant){
+    int fonction = 0, mat;
+    char nom[21], foncstr[21];
+
+    FILE *fres;
+    fres = fopen("VoiturierPlasschaertPersonnel.dat", "w");
+
+    personnel *intercale, *deb;
+
+    //Demande le type d'employé à ajouter
+    printf("\nType d'employé: (1: GERANT | 2: CUISINIER | 3: SERVEUR)\n");
+    scanf("%d", &fonction);
+
+    while (!(fonction == 1 || fonction == 2 || fonction == 3)){
+        printf("\nType d'employé: (1: GERANT | 2: CUISINIER | 3: SERVEUR)\n");
+        scanf("%d", &fonction);
+    }
+
+    //Demande le prénom de l'employé à ajouter
+    printf("\nPrénom du nouvel employé: ");
+    scanf("%20s", nom);
+
+    deb = courant;
+    intercale = malloc(sizeof(personnel));
+    while(courant->suivant != NULL){
+        //Si ce test est vrai, alors l'élément courant est de meme type que celui qu'on ajoute
+        if (courant->matricule / 100 == fonction && courant->suivant->matricule / 100 != fonction){
+            mat = courant->matricule;
+            strcpy(foncstr, courant->fonction);
+            intercale->suivant = courant->suivant;
+		    courant->suivant = intercale;
+        }
+
+        if (courant->matricule == 0){
+            courant->matricule = mat + 1;
+            strcpy(courant->fonction, foncstr);
+            strcpy(courant->prenom, nom);
+        }
+        
+        printf("%03d %-20s %-20s\n", courant->matricule, courant->prenom, courant->fonction);
+        fprintf(fres, "%03d %-20s %-20s\n", courant->matricule, courant->prenom, courant->fonction);
+        courant = courant->suivant;
+    }
+
+    // courant = deb;
+    // while(courant->suivant != NULL){
+        
+    //     fprintf(fres, "%03d %-20s %-20s\n", courant->matricule, courant->prenom, courant->fonction);
+    //     courant = courant->suivant;
+    // }
+    // fclose(fres);
+
+}
+
+void afficherPersonnel(personnel * courant){
+    personnel *deb;
+    deb = courant;
+    char tmpfonc[21] = "";
+
+    while(courant->suivant != NULL){
+        if (strcmp(tmpfonc, courant->fonction) != 0){
+            strcpy(tmpfonc, courant->fonction);
+            printf("\n%-20s\n=========================================\n", tmpfonc);
+        }
+
+        printf("    Matricule: %03d - Prénom: %-20s\n", courant->matricule, courant->prenom);
+        courant = courant->suivant;
+    }
 
 }
