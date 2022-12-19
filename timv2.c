@@ -174,37 +174,46 @@ void faireCommande(listePlats *pcourant, listeBoissons *bcourant,table *tablecou
 	listeBoissons *bdeb,*bsuivant;
 	listePlats  *pdeb,*psuivant;
 	table *tabledeb, *tablesuivant;
-
+	tabledeb = tablecourant;
 	void ajoutart(int, int , int, listePlats*, listeBoissons*,table*);
-
+	i=0;
+	while(tablecourant != NULL){
+		tablecourant = tablecourant->suivant;
+		i++;
+	}
+	i--;
 	//demande de la table.
 	printf("Veillez entrer la table concernee :  \n");
-	scanf("%2d",&tab);
-	if((tab>=1)&&(tab<=10)){
+	scanf("%d",&tab);
+	if((tab>=1)&&(tab<=i)){
 		
 		//demande si plat ou boisson (si 0 stop la commande
 		printf("Tapez 1 pour un plat, 2 pour une boisson et 0 pour arreter l'encodage: \n");
-		scanf("%2d",&type);
+		scanf("%d",&type);
 		while(type != 0){
 			if((type==2)||(type==1)){
 				//demande de l'id de larticle
 				printf("Entrez l'id de l'article : \n");
-				scanf("%2d",&id);
+				scanf("%d",&id);
 				//appel de la fonction d'ajout à une commande.
 				ajoutart(tab,type,id,pcourant, bcourant,tablecourant);
 				printf("Tapez 1 pour un plat, 2 pour une boisson et 0 pour arreter l'encodage: \n");
-				scanf("%2d",&type);
+				scanf("%d",&type);
 				
 			}
 			//entree non valide, le rpogramme previens et repose la question. 
 			
 			else{
 				printf("Entrez une donnee valide ! \nTapez 1 pour un plat, 2 pour une boisson et 0 pour arreter l'encodage: \n");
-				scanf("%2d",&type);
+				scanf("%d",&type);
 			}
 		}
 		
 		printf("Merci.");
+	}
+	else{
+		printf("Cette table n'existe pas.\n");
+		return;
 	}
 }
 
@@ -221,16 +230,17 @@ void ajoutart(int tab, int type, int id, listePlats *pcourant, listeBoissons *bc
 	
 	i=0;
 	//recherche de la table concernée. Sortie de boucle s'il trouve la table ou si la table arrive a NULL
-	while((tablecourant->num != tab)&&(tablecourant != NULL)){
+	while((tablecourant != NULL)&&(tablecourant->num != tab)){
 		tablecourant = tablecourant->suivant;
 		
 	}
 	
 	//s'il la boucle n'a pas trouvé la table alors la table n'est pas dans le restaurant.
-	if(tablecourant == NULL){
+	if(tablecourant->suivant == NULL){
 		printf("Cette table n'est pas dans le restaurant.\n");
 		return;
 	}
+	printf("test");
 	//Si l'article est un plat
 	if(type ==1){
 		
@@ -281,28 +291,37 @@ void ajoutart(int tab, int type, int id, listePlats *pcourant, listeBoissons *bc
 	
 }
 		
-void imprimerTicket(table *tcourant){
+void imprimerTicket(table *tcourant,int idemploye){
 	table *tdeb, *tsuivant;
 	FILE*fdirect,*fcaisse;
 	fdirect = fopen("VoiturierPlasschaertTicketCli.res","w");
 	fcaisse = fopen("VoiturierPlasschaertTicketCaisse.res","a");
 	int numTab;
 	printf("Entrez la table a imprimer : \n" );
+	
 	scanf("%d",&numTab);
 	//Fonction qui affiche la date et l'heure du ticket
 	time_t timer;
     char buffer[26];
     struct tm* tm_info;
     timer = time(NULL);
-    tm_info = localtime(&timer);
-	strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
-	fprintf(fdirect,"               %s \n                   Chez ClaCla\n==============================================================\n",buffer);
-	fprintf(fcaisse,"               %s \n                   Chez ClaCla\n==============================================================\n",buffer);
 	
 	//parcourt de la liste pour trouver la bonne table.
 	while((tcourant->num != numTab)&&(tcourant != NULL)){
 		tcourant = tcourant->suivant;
 	}
+	if(tcourant ==NULL){
+		printf("Cette table n'existe pas.");
+		return;
+	}
+	
+    tm_info = localtime(&timer);
+    //impression en-tête
+	strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+	fprintf(fdirect,"                  %s \n                      Chez ClaCla\n                      Table n°%-3d\n                   Servis par n°%3d\n--------------------------------------------------------------\n",buffer,tcourant->num,idemploye);
+	fprintf(fcaisse,"                  %s \n                      Chez ClaCla\n                      Table n°%-3d\n                   Servis par n°%3d\n--------------------------------------------------------------\n",buffer,tcourant->num,idemploye);
+	
+	
 	//ecriture du ticket de caisse client et restaurant
 	//Affichage de tout les plats 
 	for(i=1;i<=tcourant->ticket.nbplats;i++){
@@ -317,20 +336,20 @@ void imprimerTicket(table *tcourant){
 	//impression dans le fichier caisse.
 	if(tcourant->ticket.nbplats >0){
 	
-		fprintf(fcaisse,"\nTotal HTVA 6%%  : %8.2f€\n",(tcourant->ticket.prixPlats-(tcourant->ticket.prixPlats/100*6)));
-		fprintf(fcaisse,"TVA        6%%  : %8.2f€\n",(tcourant->ticket.prixPlats/100*6));
-		fprintf(fcaisse,"Total TTC      : %8.2f€\n",(tcourant->ticket.prixPlats));
+		fprintf(fcaisse,"\nTotal HTVA 6%%  :                                    %8.2f€\n",(tcourant->ticket.prixPlats-(tcourant->ticket.prixPlats/100*6)));
+		fprintf(fcaisse,"TVA        6%%  :                                    %8.2f€\n",(tcourant->ticket.prixPlats/100*6));
+		fprintf(fcaisse,"Total TTC      :                                    %8.2f€\n",(tcourant->ticket.prixPlats));
 	}
 	if(tcourant->ticket.nbboissons >0){
 	
-		fprintf(fcaisse,"\nTotal HTVA 21%% :               %8.2f€\n",(tcourant->ticket.prixBoissons-(tcourant->ticket.prixBoissons/100*21)));
-		fprintf(fcaisse,"TVA        21%% :                %8.2f€\n",(tcourant->ticket.prixBoissons/100*21));
-		fprintf(fcaisse,"Total TTC      :                  %8.2f€\n",tcourant->ticket.prixBoissons);
+		fprintf(fcaisse,"\nTotal HTVA 21%% :                                    %8.2f€\n",(tcourant->ticket.prixBoissons-(tcourant->ticket.prixBoissons/100*21)));
+		fprintf(fcaisse,"TVA        21%% :                                    %8.2f€\n",(tcourant->ticket.prixBoissons/100*21));
+		fprintf(fcaisse,"Total TTC      :                                    %8.2f€\n",tcourant->ticket.prixBoissons);
 	}
-	fprintf(fcaisse,"\n==============================================================\n");
+	fprintf(fcaisse,"\n--------------------------------------------------------------\n");
 	float total = tcourant->ticket.prixPlats + tcourant->ticket.prixBoissons;
-	fprintf(fcaisse,"Total           : %-8.2f€\n\n\n",total);
-	
+	fprintf(fcaisse,"Total          :                                    %8.2f€\n\n\n",total);
+	fprintf(fcaisse,"===================================================================\n\n\n");
 	//impression client
 	if(tcourant->ticket.nbplats >0){
 		fprintf(fdirect,"\nTotal HTVA 6%%  :                                    %8.2f€\n",(tcourant->ticket.prixPlats-(tcourant->ticket.prixPlats/100*6)));
@@ -342,9 +361,10 @@ void imprimerTicket(table *tcourant){
 		fprintf(fdirect,"TVA        21%% :                                    %8.2f€\n",(tcourant->ticket.prixBoissons/100*21));
 		fprintf(fdirect,"Total TTC      :                                    %8.2f€\n",tcourant->ticket.prixBoissons);
 	}
-	fprintf(fdirect,"\n==============================================================\n");
+	fprintf(fdirect,"\n--------------------------------------------------------------\n");
 	total = tcourant->ticket.prixPlats + tcourant->ticket.prixBoissons;
-	fprintf(fdirect,"Total           :                                    %8.2f€\n",total);
+	fprintf(fdirect,"Total          :                                    %8.2f€\n",total);
+	
 	
 	//mise a 0 du ticket imprimé
 	//Pour les plats
@@ -395,7 +415,8 @@ main(){
     
     faireCommande(pcourant, bcourant, tablecourant);
     
-    imprimerTicket(tabledeb);
+    imprimerTicket(tabledeb,123);
+    
     
     
     
