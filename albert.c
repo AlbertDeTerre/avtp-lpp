@@ -380,7 +380,10 @@ void supprimerPersonnel(){
 
     //Demande l'employé a supprimer
     printf("Matricule de l'employé à supprimer: ");
-    scanf("%3d", &mat);
+    scanf("%d", &mat);
+    if (mat <=0){
+    	return;
+	}
 
     fres = fopen("VoiturierPlasschaertPersonnel.dat", "w");
 

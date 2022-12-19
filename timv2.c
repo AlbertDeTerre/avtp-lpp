@@ -397,6 +397,7 @@ void imprimerTicket(table *tcourant,int idemploye){
 void nettoyerCaisse(){
 	FILE*fcaisse;
 	fcaisse = fopen("VoiturierPlasschaertTicketCaisse.res","w");
+	printf("Caisse vide.\n");
 }
 
 personnel * lecturePersonnel(){
@@ -435,7 +436,8 @@ int identification(){
     //Demande le numéro de matricule de l'utilisateur pour qu'il s'identifie
     printf("Entrez votre matricule: ");
     scanf("%3d", &matricule);
-	
+	if(matricule == 0)
+		return 0;
     //Parcours la liste des utilisateurs pour voir si la personne a entré un bon matricule
     fscanf(fdat, "%3d", &matEmp);
     while (!feof(fdat)){
@@ -892,6 +894,8 @@ int main()
         }
         
     }
+    if(running == 0)
+    	break;
 	running = identification();
     
     }
