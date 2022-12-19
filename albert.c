@@ -36,7 +36,7 @@ int main()
     
     //Déclaration des fonctions et variables;
     int running = 1, identification(), jourSemaine(int, int, int), jourExiste(int, int, int, int, int, int);
-    void reserver(table*), ajouterPersonnel(), afficherPersonnel(personnel*);
+    void reserver(table*), ajouterPersonnel(), supprimerPersonnel();
     void annulerReservation(), afficherReservations();
     table *tdeb, *tcourant;
     personnel *pcourant, *pdeb;
@@ -82,9 +82,9 @@ int main()
                 printf("CHOISISSEZ UNE OPTION: (1: AJOUTER UN EMPLOYER | 2: LISTE DES EMPLOYES)\n");
                 scanf("%d", &option);
                 if (option == 1){
-                    ajouterPersonnel(pcourant);
+                    ajouterPersonnel();
                 }else if(option == 2){
-                    afficherPersonnel(pcourant);
+                    supprimerPersonnel();
                 }
             //L'utilisateur veut quitter le prog
             }else{
@@ -282,16 +282,21 @@ void afficherReservations(){
 
 }
 
+
+
 // ----------------------------------------- AJOUTE UN EMPLOYE -------------------------------------------
 
-void ajouterPersonnel(personnel * courant){
-    int fonction = 0, mat;
-    char nom[21], foncstr[21];
+void ajouterPersonnel(){
 
     FILE *fres;
-    fres = fopen("VoiturierPlasschaertPersonnel.dat", "w");
+    personnel * lecturePersonnel();
 
-    personnel *intercale, *deb;
+    personnel *courant, *deb, *intercale;
+    courant = lecturePersonnel();
+    deb = courant;
+
+    int fonction;
+    char prenom[21];
 
     //Demande le type d'employé à ajouter
     printf("\nType d'employé: (1: GERANT | 2: CUISINIER | 3: SERVEUR)\n");
@@ -304,53 +309,90 @@ void ajouterPersonnel(personnel * courant){
 
     //Demande le prénom de l'employé à ajouter
     printf("\nPrénom du nouvel employé: ");
-    scanf("%20s", nom);
+    scanf("%20s", prenom);
+    int nbEmpFonction[4];
 
-    deb = courant;
-    intercale = malloc(sizeof(personnel));
+    for (int i = 1; i <=3; i++){
+        nbEmpFonction[i] = 0;
+    }
+
     while(courant->suivant != NULL){
-        //Si ce test est vrai, alors l'élément courant est de meme type que celui qu'on ajoute
-        if (courant->matricule / 100 == fonction && courant->suivant->matricule / 100 != fonction){
-            mat = courant->matricule;
-            strcpy(foncstr, courant->fonction);
-            intercale->suivant = courant->suivant;
-		    courant->suivant = intercale;
-        }
-
-        if (courant->matricule == 0){
-            courant->matricule = mat + 1;
-            strcpy(courant->fonction, foncstr);
-            strcpy(courant->prenom, nom);
-        }
-        
-        printf("%03d %-20s %-20s\n", courant->matricule, courant->prenom, courant->fonction);
-        fprintf(fres, "%03d %-20s %-20s\n", courant->matricule, courant->prenom, courant->fonction);
+        nbEmpFonction[courant->matricule / 100] ++;
         courant = courant->suivant;
     }
 
+    fres = fopen("VoiturierPlasschaertPersonnel.dat", "w");
+    char fonctions[4][21];
+    strcpy(fonctions[1], "GERANT");
+    strcpy(fonctions[2], "CUISINIER");
+    strcpy(fonctions[3], "SERVEUR");
+
+
+    int count = 0, nbEmp = 0, matPrecedent = 0;
+    courant = deb;
+    intercale = malloc(sizeof(personnel));
+    //Parcourt la liste des employés
+    while(courant->suivant != NULL){
+        //Si l'employé courant a la fonction de l'employé que l'on veut ajouter
+        if(courant->matricule / 100 == fonction){
+            count++;
+            //Si on est a l'employé recherché
+            if(count == nbEmpFonction[courant->matricule / 100]){
+                intercale->suivant = courant->suivant;
+                courant->suivant = intercale;
+                strcpy(courant->suivant->fonction, courant->fonction);
+                strcpy(courant->suivant->prenom, prenom);
+                courant->suivant->matricule = courant->matricule + 1;
+            }
+        }else if((courant->matricule == 999 && (courant->suivant == NULL || courant->suivant->matricule / 100 > fonction)) || (courant->matricule != 999 && courant->suivant->matricule / 100 > 1 + courant->matricule / 100 && fonction == 1 + courant->matricule / 100)){
+            intercale->suivant = courant->suivant;
+            courant->suivant = intercale;
+            strcpy(courant->suivant->fonction, fonctions[fonction]);
+            strcpy(courant->suivant->prenom, prenom);
+            courant->suivant->matricule = fonction * 100 + 1;
+        }
+        fprintf(fres, "%03d %-20s %-20s\n", courant->matricule, courant->prenom, courant->fonction);
+        matPrecedent = courant->matricule;
+        courant = courant->suivant;
+    }
     fclose(fres);
 }
 
 // -------------------------------- SUPPRIME UN EMPLOYE -------------------------------------
-void supprimerPersonnel(personnel * courant){
+void supprimerPersonnel(){
     
-    int matPers, existe = 0;
-    personnel *deb;
+    FILE *fres;
+    personnel * lecturePersonnel();
 
+    personnel *courant, *deb, *intercale;
+    intercale = malloc(sizeof(personnel));
+    courant = lecturePersonnel();
     deb = courant;
-    while (existe == 0){
-        printf("\nMatricule du membre du personnel à supprimer: ");
-        scanf("%3d", &matPers);
-        while(courant->suivant != NULL){
-            if (courant->matricule == matPers){
-                existe = 1;
-            }
-            courant = courant->suivant;
-        }
-    }
-    
-    
 
+    int fonction, present = 0, mat;
+    char prenom[21];
+
+    printf("Matricule de l'employé à supprimer: ");
+    scanf("%3d", &mat);
+
+    fres = fopen("VoiturierPlasschaertPersonnel.dat", "w");
+
+    while (courant->suivant != NULL){
+        if (courant->suivant->matricule == mat){
+            present = 1;
+            intercale = courant->suivant->suivant;
+            courant->suivant = intercale;
+        }
+        if (courant->matricule / 100 == mat / 100 && courant->matricule > mat){
+            courant->matricule -= 1;
+        }
+        fprintf(fres, "%03d %-20s %-20s\n", courant->matricule, courant->prenom, courant->fonction);
+        courant = courant->suivant;
+    }
+
+    if (present != 1){
+        printf("\n!!CET EMPLOYE N'EXISTE PAS!!\n");
+    }
 
 }
 
@@ -517,7 +559,6 @@ void reserver(table * tcourant){
                             min = nbPersonnes;
                             tableChoisie = tcourant->num;
                         }
-                        tcourant = tcourant->suivant;
 
                         //On parcourt les tables réservées pour la date donnée
                         for(int i = 0; i < courant->nbtables; i++){
@@ -724,6 +765,5 @@ int jourExiste(int jour, int mois, int annee, int anneeCourante, int moisCourant
             }
         }
     }
-    
     return verifdate;
 }
