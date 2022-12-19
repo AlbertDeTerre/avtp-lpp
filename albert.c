@@ -36,8 +36,9 @@ int main()
     FILE *ftab, *fmenu, *fboi, *fpersonnel, *fhoraire;
     
     //Déclaration des fonctions et variables;
-    int running = 1, identification(), jourSemaine(int, int, int), jourExiste(int, int, int, int);
-    void /*reservation(table*), annulerReservation(),*/ reserver(table*), ajouterPersonnel(), afficherPersonnel(personnel*);
+    int running = 1, identification(), jourSemaine(int, int, int), jourExiste(int, int, int, int, int, int);
+    void reserver(table*), ajouterPersonnel(), afficherPersonnel(personnel*);
+    void annulerReservation();
     table *tdeb, *tcourant;
     personnel *pcourant, *pdeb;
     
@@ -49,8 +50,6 @@ int main()
     pcourant = lecturePersonnel();
     pdeb = pcourant;
     tdeb = tcourant;
-
-    // faireReservation(tcourant);
 
     //Si la personne s'identifie bien, on rentre dans la boucle, sinon one ne rentre pas dedans
     running = identification();
@@ -66,12 +65,12 @@ int main()
 
             //L'utilisateur veut encoder une réservation
             if(option == 1){
-                printf("1: AJOUTER UNE RESERVATION | 2: ANNULER UNE RESERVATION | AUTRE: QUITTER\n");
+                printf("CHOISISSEZ UNE OPTION: (1: AJOUTER UNE RESERVATION | 2: ANNULER UNE RESERVATION | AUTRE: QUITTER)\n");
                 scanf("%2d", &option);
                 if (option == 1){
                     reserver(tdeb);
                 }else if (option == 2){
-                    // annulerReservation();
+                    annulerReservation();
                 }
 
             //L'utilisateur veut encoder une commande
@@ -79,7 +78,7 @@ int main()
 
             //L'utilisateur veut changer le personnel;
             }else if(option == 3){
-                printf("1: AJOUTER UN EMPLOYER | 2: LISTE DES EMPLOYES\n");
+                printf("CHOISISSEZ UNE OPTION: (1: AJOUTER UN EMPLOYER | 2: LISTE DES EMPLOYES)\n");
                 scanf("%d", &option);
                 if (option == 1){
                     ajouterPersonnel(pcourant);
@@ -123,9 +122,10 @@ int main()
     }
     
 
-    // printf("\n** FIN DU PROGRAMME **\n");
+    printf("\n** FIN DU PROGRAMME **\n");
 }
 
+// ------------------------- RECUPERE LA LISTE CHAINEE DES TABLES ---------------------------
 table * lectureTable(){
 
     //Ouverture du fichier qui va être lu ("table.dat")
@@ -161,6 +161,7 @@ table * lectureTable(){
     return tdeb;
 }
 
+// ----------------------- RECUPERE LA LISTE CHAINEE DES MEMBRES DU PERSONNEL --------------------------
 personnel * lecturePersonnel(){
     //Ouverture du fichier
     FILE *fpers;
@@ -188,6 +189,7 @@ personnel * lecturePersonnel(){
     return deb;
 }
 
+// ----------------------------------------- IDENTIFICATION -----------------------------------------------
 int identification(){
     //Déclaration des variables ainsi que du fichier
     int matricule, matEmp;
@@ -197,6 +199,13 @@ int identification(){
     //Demande le numéro de matricule de l'utilisateur pour qu'il s'identifie
     printf("Entrez votre matricule: ");
     scanf("%3d", &matricule);
+
+    //Si le matricule entré est 0 --> retourne 0 pour quitter la boucle du main
+    if (matricule == 0)
+    {
+        return 0;
+    }
+    
 
     //Parcours la liste des utilisateurs pour voir si la personne a entré un bon matricule
     fscanf(fdat, "%3d", &matEmp);
@@ -214,255 +223,10 @@ int identification(){
     //Si le test entre les deux matricule échoue
     printf("\n!! Identification échouée !!\n");
     fclose(fdat);
-    return 0;
+    return -1;
 }
 
-// void reservation(table * courant){
-
-//     //Ouverture des fichiers nécéssaires
-//     FILE *fres, *fdat, *fjours;
-//     fjours = fopen("VoiturierPlasschaertJours.dat", "r");
-//     fdat = fopen("VoiturierPlasschaertReservations.res", "r");
-//     table *deb, *tableChoisie, *table;
-//     int reservations[8][50], existe = 0;
-//     char jours[8][10];
-
-//     //Déclaration des variables
-//     int nbPersonnes = 999999, numTableChoisie = 0, min = 999999, tablesRes[50], nbTablesRes, resReussie = 0;
-//     char jour[10], jourFichier[10];
-
-//     //Demande à l'utilisateur quel est le jour de la réservation
-//     printf("\nJour de la réservation: ");
-//     scanf("%9s", jour);
-
-//     for (int i = 0; i < 10; i++){
-//         if (jour[i] == '\0'){
-//             break;
-//         }
-//         jour[i] = toupper(jour[i]);
-//     }
-
-//     //Initialise le vecteur comprenant chaque jours de la semaine
-//     for (int i = 1; i <= 7; i++){
-//         fscanf(fjours, "%10s", jours[i]);
-
-//         if (strcmp(jours[i], jour) == 0){
-//             existe = 1;
-//         }
-//     }
-
-//     //SI le jour est lundi
-//     if (strcmp(jour, "LUNDI") == 0){
-//         printf("\nLe restaurant n'est pas ouvert le lundi !");
-//         existe = 0;
-//     }
-
-//     while (existe == 0)
-//     {
-//         //Demande le jour de la réservation;
-//         printf("\nJour de la réservation: ");
-//         scanf("%9s", jour);
-
-//         //Met le jour en MAJ
-//         for (int i = 0; i < 10; i++){
-//             if (jour[i] == '\0'){
-//                 break;
-//             }
-//             jour[i] = toupper(jour[i]);
-//         }
-
-//         //Série de test pour voir si le jour est OK
-//         for (int i = 1; i <= 7; i++){
-//             if (strcmp(jours[i], jour) == 0){
-//                 if (strcmp((jour), "LUNDI") == 0){
-//                     printf("\nLe restaurant n'est pas ouvert le lundi !");
-//                     break;
-//                 }
-
-//                 existe = 1;
-//             }
-//         }
-//     }
-    
-//     //Demande le nombre de personnes
-//     printf("\nNombre de personnes: ");
-//     scanf("%2d", &nbPersonnes);
-
-//     int nbTablesResEcriture[8], tablesResEcriture[8][50];
-
-//     //Initialisation d'un liste des tables déjà réservées le jour voulu
-//     for (int i = 1; i <= 7; i++){
-//         fscanf(fdat, "%9s", jours[i]);
-//         if (strcmp(jours[i], jour) == 0){
-//             fscanf(fdat, "%2d", &nbTablesRes);
-//             nbTablesResEcriture[i] = nbTablesRes;
-//             for (int j = 0; j < nbTablesRes; j++){
-//                 fscanf(fdat, "%2d", &tablesRes[j]);
-//                 tablesResEcriture[i][j] = tablesRes[j];
-//             }
-//         }else{
-//             fscanf(fdat, "%2d", &nbTablesResEcriture[i]);
-//             for (int j = 0; j < nbTablesRes; j++){
-//                 fscanf(fdat, "%2d", &tablesResEcriture[i][j]);
-//             }
-//         }
-//     }
-
-//     //Parcours la liste de des tables a la recherche d'une table assez grande et regarde si elle est déjà prise
-//     while(courant->suivant != NULL){
-//         int reservee = 0;
-//         for (int i = 0; i < nbTablesRes; i++){
-//             if (tablesRes[i] == courant->num){
-//                 reservee = 1;
-//                 break;
-//             }
-//         }
-//         //La variable min sert à essayer d'optimiser le nombre de personne par table pour ne pas donner une table trop grande à un groupe
-//         if (reservee == 0 && courant->nbPersonnes >= nbPersonnes && courant->nbPersonnes < min){
-//             resReussie = 1;
-//             min = courant->nbPersonnes;
-//             numTableChoisie = courant->num;
-//             if (courant->nbPersonnes == nbPersonnes){
-//                 break;
-//             }
-//         }
-//         courant = courant->suivant;
-//     }
-
-//     char tmp[10];
-
-//     //Si la table peut bien être réservée
-//     if(numTableChoisie != 0){
-//         for (int i = 1; i <= 7; i++){
-//             printf("%-9s %02d ", jours[i], nbTablesResEcriture[i]);
-//             for (int j = 0; j < nbTablesResEcriture[i]; j++){
-//                 printf("%02d ", tablesResEcriture[i][j]);
-//             }
-//             printf("\n");
-//         }
-
-//         fclose(fdat);
-//         fres = fopen("VoiturierPlasschaertReservations.res", "w");
-
-//         for (int i = 1; i <= 7; i++){
-//             if(strcmp(jour, jours[i]) == 0){
-
-//                 fprintf(fres, "%-9s %02d ", jours[i], nbTablesResEcriture[i] + 1);
-//             }else{
-//                 fprintf(fres, "%-9s %02d ", jours[i], nbTablesResEcriture[i]);
-//             }
-
-//             for (int j = 0; j < nbTablesResEcriture[i]; j++){
-//                 fprintf(fres, "%02d ", tablesResEcriture[i][j]);
-//                 if (strcmp(jour, jours[i]) == 0 && j == nbTablesResEcriture[i] - 1){
-//                     fprintf(fres, "%02d", numTableChoisie);
-//                 }
-//             }
-//             fprintf(fres, "\n");
-//         }
-//     }
-//     fclose(fres);
-// }
-
-// //Récupérer le numéro du jour de la semaine
-// int jourSemaine(int jour, int mois, int annee){
-//     int joursemaine = (jour += mois < 3 ? annee-- : annee - 2, 23*mois/9 + jour + 4 + annee/4- annee/100 + annee/400)%7; 
-//     if (joursemaine == 0){
-//         joursemaine = 7; 
-//     }
-//     return joursemaine;
-// }
-
-// void annulerReservation(){
-//     char tmp[10], jour[10], jours[8][10];
-//     int existe = 0, tablesRes[8][50], nbTablesRes[8];
-
-//     FILE *fjours, *freservR, *freservW;
-//     fjours = fopen("VoiturierPlasschaertJours.dat", "r");
-//     freservR = fopen("VoiturierPlasschaertReservations.res", "r");
-
-//     printf("Jour de la réservation à annuler: ");
-//     scanf("%9s", jour);
-
-//     //On met toutes les lettre en majuscule
-//     for (int i = 0; i < 10; i++){
-//         if (jour[i] == '\0'){
-//             break;
-//         }
-//         jour[i] = toupper(jour[i]);
-//     }
-
-//     //Check si le jour existe
-//     for (int i = 1; i <= 7; i++){
-//         fscanf(fjours, "%9s", jours[i]);
-
-//         if (strcmp(jour, jours[i]) == 0){
-//             existe = i;
-//         }
-//     }
-
-//     //Redemande le jour jusqu'a ce qu'il soit bon
-//     while (existe == 0){
-//         printf("\n!! CE JOUR N'EXISTE PAS !!\nJour de la réservation à annuler: ");
-//         scanf("%9s", jour);
-
-//         for (int i = 0; i < 10; i++){
-//             if (jour[i] == '\0'){
-//                 break;
-//             }
-//             jour[i] = toupper(jour[i]);
-//         }
-
-//         for (int i = 1; i <= 7; i++){
-//             fscanf(fjours, "%9s", jours[i]);
-            
-//             if (strcmp(jour, jours[i]) == 0){
-//                 existe = i;
-//             }
-//         }
-//     }
-
-//     int numTableAnnuler = 0, nvNbTables = 0;
-
-//     printf("\nNuméro de la table à annuler: ");
-//     scanf("%2d", &numTableAnnuler);
-
-//     //Initialisation du vecteur avec toutes les tables reservées
-//     for (int i = 1; i <= 7; i++){
-//         fscanf(freservR, "%9s %2d", tmp, &nbTablesRes[i]);
-//         printf("%-9s %2d ", jours[i], nbTablesRes[i]);
-//         for (int j = 0; j < nbTablesRes[i]; j++){
-//             fscanf(freservR, "%2d", &tablesRes[i][j]);
-//             printf("%2d ", tablesRes[i][j]);
-//             if (strcmp(jours[i], jour) == 0 && tablesRes[i][j] == numTableAnnuler){
-//                 nvNbTables = nbTablesRes[i] - 1;
-//             }
-//         }
-//         printf("\n");
-//     }
-
-//     //Fermeture du fichier de lecture
-//     fclose(freservR);
-
-//     freservW = fopen("VoiturierPlasschaertReservations.res", "w");
-//     //Réécriture dans le fichier réservations
-//     for (int i = 1; i <= 7; i++){
-
-//         //Si le jour = celui choisi et que le numéro de table à annuler existe, alors on ecrit le nouveau nombre de table
-//         if (strcmp(jours[i], jour) == 0 && numTableAnnuler != 0){
-//             fprintf(freservW, "%-9s %02d ", jours[i], nvNbTables);
-//         }else{
-//             fprintf(freservW, "%-9s %02d ", jours[i], nbTablesRes[i]);
-//         }
-//         for (int j = 0; j < nbTablesRes[i]; j++){
-//             if (!(strcmp(jours[i], jour) == 0 && tablesRes[i][j] == numTableAnnuler)){
-//                 fprintf(freservW, "%02d ", tablesRes[i][j]);
-//             }
-//         }
-//         fprintf(freservW, "\n");
-//     }
-//     fclose(freservW);
-// }
+// ----------------------------------------- AJOUTE UN EMPLOYE -------------------------------------------
 
 void ajouterPersonnel(personnel * courant){
     int fonction = 0, mat;
@@ -511,6 +275,7 @@ void ajouterPersonnel(personnel * courant){
     fclose(fres);
 }
 
+// -------------------------------- SUPPRIME UN EMPLOYE -------------------------------------
 void supprimerPersonnel(personnel * courant){
     
     int matPers, existe = 0;
@@ -533,6 +298,7 @@ void supprimerPersonnel(personnel * courant){
 
 }
 
+// ---------------------------------- AFFICHE LA LISTE DES EMPLOYES ----------------------------------
 void afficherPersonnel(personnel * courant){
     personnel *deb;
     deb = courant;
@@ -549,6 +315,7 @@ void afficherPersonnel(personnel * courant){
     }
 }
 
+// ---------------------- RECUPERE TOUTES LES RESERVATIONS SOUS FORME DE LISTE CHAINEE ---------------------
 reservation * lectureReservations(){
 
     FILE *fdat;
@@ -565,7 +332,6 @@ reservation * lectureReservations(){
         courant->jour = jour;
         fscanf(fdat, "-%2d-%4d %2d", &courant->mois, &courant->annee, &courant->nbtables);
         for(int i = 0; i < courant->nbtables; i++){
-            printf("test");
             fscanf(fdat, "%2d ", &courant->tables[i]);
         }
 
@@ -579,12 +345,13 @@ reservation * lectureReservations(){
     return deb;
 }
 
+// ---------------------------------------- AJOUTE UNE RESERVATION -----------------------------------------
 void reserver(table * tcourant){
 
     FILE *fdat, *fres;
     fdat = fopen("VoiturierPlasschaertReservations.dat", "r");
 
-    int jourExiste(int, int, int, int);
+    int jourExiste(int, int, int, int, int, int);
     reservation * lectureReservations();
     reservation *courant, *deb;
 
@@ -613,11 +380,11 @@ void reserver(table * tcourant){
     scanf("%2d-%2d-%4d", &jourRes, &moisRes, &anneeRes);
     
     //Vérifie si la date entrée est correcte
-    int existe = jourExiste(jourRes, moisRes, anneeRes, anneeAuj);
-    while(jourExiste(jourRes, moisRes, anneeRes, anneeAuj) != 1){
+    int existe = jourExiste(jourRes, moisRes, anneeRes, anneeAuj, moisAuj, jourAuj);
+    while(existe != 1){
         printf("!! DATE NON EXISTANTE !!\nDate de la réservation: (FORMAT: JJ-MM-AAAA)\n");
         scanf("%2d-%2d-%4d", &jourRes, &moisRes, &anneeRes);
-        existe = jourExiste(jourRes, moisRes, anneeRes, anneeAuj);
+        existe = jourExiste(jourRes, moisRes, anneeRes, anneeAuj, moisAuj, jourAuj);
     }
 
     char dateRes[11];
@@ -634,7 +401,6 @@ void reserver(table * tcourant){
 
     //Si le fichier est vide
     if (vide == 1){
-        printf("fichier vide");
         fres = fopen("VoiturierPlasschaertReservations.dat", "w");
 
         //On parcourt la liste des table pour pouvoir choisir une table
@@ -653,7 +419,7 @@ void reserver(table * tcourant){
 
         //Si aucune table n'est assez grande
         if (tableChoisie == 999){
-            printf("\nLe restaurant n'a pas de table disponible pour autant de personnes !");
+            printf("\n!! LE RESTAURANT N'A PLUS DE TABLE DISPONIBLE POUR AUTANT DE PERSONNES !!\n");
             return;
         }
 
@@ -707,7 +473,7 @@ void reserver(table * tcourant){
                     }
                     //Si aucune table n'est dispo
                     if (tableChoisie == 999){
-                        printf("\nLe restaurant n'a pas de table disponible pour autant de personnes !");
+                        printf("\n!! LE RESTAURANT N'A PLUS DE TABLE DISPONIBLE POUR AUTANT DE PERSONNES !!\n");
                         fprintf(fres, "%-10s %02d ", dateRes, courant->nbtables);
                         for (int i = 0; i < courant->nbtables; i++){
                             fprintf(fres, "%02d ", courant->tables[i]);
@@ -739,7 +505,6 @@ void reserver(table * tcourant){
             tcourant = tdeb;
             //Fait les tests pour trouver une table adéquate
             while (tcourant->suivant != NULL){
-                printf("DEBUG\n");
                 //Si la table peut acceuillir le nombre de personne voulu
                 if (tcourant->nbPersonnes > nbPersonnes && min > nbPersonnes){
                     min = nbPersonnes;
@@ -763,157 +528,141 @@ void reserver(table * tcourant){
             }
             fclose(fres);
         }
-
     }
 }
 
-// void faireReservation(table * tcourant){
-//     FILE *fdat, *fres;
-
-//     char test;
-//     time_t t = time(NULL);
-//     struct tm tm = *localtime(&t);
-
-//     //Date d'aujourd'hui
-//     int jourAuj = tm.tm_mday;
-//     int moisAuj = tm.tm_mon + 1;
-//     int anneeAuj = tm.tm_year + 1900;
-
-//     fdat = fopen("VoiturierPlasschaertReservations.dat", "r");
-
-//     int verifdate, jourRes, moisRes, anneeRes, jourExiste(int, int, int, int);
-
-//     //Initialisation de la liste des réservations
-//     reservation *courant, *deb, *suivant;
-//     table *tdeb;
-//     tdeb = tcourant;
-
-//     courant = malloc(sizeof(reservation));
-//     deb = courant;
-//     while (!feof(fdat)){
-//         fscanf(fdat, "%2d-%2d-%4d %2d", &courant->jour, &courant->mois, &courant->annee, &courant->nbtables);
-//         for(int i = 0; i < courant->nbtables; i++){
-//             printf("test");
-//             fscanf(fdat, "%2d ", &courant->tables[i]);
-//         }
-
-//         sprintf(courant->date, "%02d-%02d-%04d", courant->jour, courant->mois, courant->annee);
-//         suivant = malloc(sizeof(reservation));
-//         courant->suivant = suivant;
-//         courant = courant->suivant;
-//     }
-
-//     fclose(fdat);
-
-//     //Demande d'entrer une date à l'utilisateur
-//     printf("\nDate de la réservation: (FORMAT: JJ-MM-AAAA)\n");
-//     scanf("%2d-%2d-%4d", &jourRes, &moisRes, &anneeRes);
-//     char dateRes[11];
-//     sprintf(dateRes, "%02d-%02d-%04d", jourRes, moisRes, anneeRes);
+// ------------------------------------------- ANNULE UN RESERVATION ----------------------------------------
+void annulerReservation(){
     
+    FILE *fdat, *fres;
+    fdat = fopen("VoiturierPlasschaertReservations.dat", "r");
 
-//     //Vérifie si la date entrée est correcte
-//     int existe = jourExiste(jourRes, moisRes, anneeRes, anneeAuj);
-//     while(jourExiste(jourRes, moisRes, anneeRes, anneeAuj) != 1){
-//         printf("!! DATE NON EXISTANTE !!\nDate de la réservation: (FORMAT: JJ-MM-AAAA)\n");
-//         scanf("%2d-%2d-%4d", &jourRes, &moisRes, &anneeRes);
-//         existe = jourExiste(jourRes, moisRes, anneeRes, anneeAuj);
-//     }
+    //Variables utile pour récupérer la date du jour
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
 
-//     int nbPersonnes, tablesRes[50];
-//     //Demande du nombre de personnes
-//     printf("Nombre de personnes: ");
-//     scanf("%2d", &nbPersonnes);
+    //Date d'aujourd'hui
+    int jourAuj = tm.tm_mday;
+    int moisAuj = tm.tm_mon + 1;
+    int anneeAuj = tm.tm_year + 1900;
+    int jourExiste(int, int, int, int, int, int);
 
-//     fres = fopen("VoiturierPlasschaertReservations.dat", "w");
+    //On check si le fichier est vide
+    int c = fgetc(fdat), vide;
+    if (c == EOF){
+        vide = 1;
+    }else{
+        vide = 0;
+        ungetc(c, fdat);
+    }
 
-//     existe = 0;
-//     courant = deb;
-//     //parcours la liste des réservations
-//     while(courant->suivant != NULL){
-//         //Si la date de la réservation
-//         if (strcmp(courant->date, dateRes) == 0){
-//             existe = 1;
-//             break;
-//         }
-//         courant = courant->suivant;
-//     }
+    //Fermer le fichier
+    fclose(fdat);
 
+    //Si le fichier est vide on arrete l'annulation de la reservation
+    if (vide == 1){
+        printf("\n!! IMPOSSIBLE D'ANNULER UNE RESERVATION CAR IL N'Y EN A AUCUNE !!\n");
+        return;
+    }
 
-//     int numTable = 0, tableDispo = 0;
-//     //Si la réservation existe
-//     int min = 999999;
-//     if (existe == 1){
-//         //On parcours la liste des tables
-//         while (tcourant->suivant != NULL){
-//             //On regarde si la table peut acceuillir assez de personnes
-//             if (tcourant->nbPersonnes >= nbPersonnes && min > nbPersonnes){
-//                 //Si oui, on parcours les tables déja réservées
-//                 for (int i = 0; i < courant->nbtables; i++){
-//                     //si la table n'est pas dans la liste alors
-//                     if (courant->tables[i] != tcourant->num){
-//                         min = nbPersonnes;
-//                         numTable = tcourant->num;
-//                         tableDispo = 1;
-//                     }
-//                 }
-//             }
-//             tcourant = tcourant->suivant;
-//         }
-//     //SINON on insere une nouvelle réservation
-//     }else{
-//         courant = courant->suivant;
-//         //On parcours la liste des tables
-//         while (tcourant->suivant != NULL){
-//             //On regarde si la table peut acceuillir assez de personnes
-//             if (tcourant->nbPersonnes >= nbPersonnes && min > nbPersonnes){
-//                 courant->tables[0] = tcourant->num;
-//                 min = tcourant->num;
-//                 courant->nbtables = 1;
-//                 strcpy(courant->date, dateRes);
-//             }
-//             tcourant = tcourant->suivant;
-//         }
-//     }
+    int jourRes, moisRes, anneeRes;
+    //Demande d'entrer une date à l'utilisateur
+    printf("\nDate de la réservation: (FORMAT: JJ-MM-AAAA)\n");
+    scanf("%2d-%2d-%4d", &jourRes, &moisRes, &anneeRes);
     
-//     if (deb->suivant->suivant == NULL){
-//         printf("DEBUGGG");
-//     }
+    //Vérifie si la date entrée est correcte
+    int existe = jourExiste(jourRes, moisRes, anneeRes, anneeAuj, moisAuj, jourAuj);
+    while(existe != 1){
+        printf("!! DATE NON EXISTANTE !!\nDate de la réservation: (FORMAT: JJ-MM-AAAA)\n");
+        scanf("%2d-%2d-%4d", &jourRes, &moisRes, &anneeRes);
+        existe = jourExiste(jourRes, moisRes, anneeRes, anneeAuj, moisAuj, jourAuj);
+    }
 
-//     if (tableDispo == 1){
-//         courant->nbtables += 1;
-//         courant->tables[courant->nbtables - 1] = numTable;
-//     }
+    reservation *courant, *deb;
+    courant = lectureReservations();
+    deb = courant;
 
-//     courant = deb;
-//     while (courant != NULL){
-//         printf("%-10s %02d ", courant->date, courant->nbtables);
-//         for (int i = 0; i < courant->nbtables; i++){
-//             printf("%02d ", courant->tables[i]);
-//         }
-//         courant = courant->suivant;
-//     }
+    int resExiste = 0, numTable;
 
-// }
+    char dateRes[11];
+    sprintf(dateRes, "%02d-%02d-%04d", jourRes, moisRes, anneeRes);
 
-int jourExiste(int jour, int mois, int annee, int anneeCourante){
+    printf("Table à annuler: ");
+    scanf("\n%2d", &numTable);
+
+    //On parcourt la liste des réservation
+    while (courant->suivant != NULL){
+        //On regarde si la date entrée est présente
+        if(strcmp(dateRes, courant->date) == 0){
+            for (int i = 0; i < courant->nbtables; i++){
+                if (courant->tables[i] == numTable){
+                    resExiste = 1;
+                }
+            }
+        }else{
+            printf("\n!! IL N'Y A AUCUNE RESERVATION POUR CETTE DATE !!");
+            return;
+        }
+        courant = courant->suivant;
+    }
+
+    //Si la réservation voulue n'existe pas
+    if (resExiste == 0){
+        printf("\n!! CETTE TABLE N'EST PAS RESERVE POUR LE JOUR SUIVANT: %-10s !!\n", dateRes);
+        return;
+    }
+
+    fres = fopen("VoiturierPlasschaertReservations.dat", "w");
+    //Si la réservation existe, on la retire
+    courant = deb;
+    while (courant->suivant != NULL){
+        //Si c'est la ligne qu'on cherche a changer
+        if(strcmp(dateRes, courant->date) == 0){
+            //Si le nb de table == 1 alors il n'y en restera plus après suppresion donc on supp la ligne entière
+            if(courant->nbtables == 1){
+                fprintf(fres, "");
+            //SINON on print seulement les tables qu'on garde
+            }else{
+                fprintf(fres, "%-10s %02d ", courant->date, courant->nbtables - 1);
+                for (int i = 0; i < courant->nbtables; i++){
+                    if (courant->tables[i] != numTable){
+                        fprintf(fres, "%02d ", courant->tables[i]);
+                    }
+                }
+                fprintf(fres, "\n");
+            }
+        //Si c'est pas la ligne a changer, on print tout
+        }else{
+            fprintf(fres, "%-10s %02d ", courant->date, courant->nbtables);
+            for (int i = 0; i < courant->nbtables; i++){
+                fprintf(fres, "%02d ", courant->tables[i]);
+            }
+            fprintf(fres, "\n");
+        }
+        courant = courant->suivant;
+    }
+    fclose(fres);
+}
+
+//  ---------------------------------- VERIFIE SI UN JOUR EXISTE ----------------------------------
+int jourExiste(int jour, int mois, int annee, int anneeCourante, int moisCourant, int jourCourant){
     int verifdate = 0;
     if (annee == anneeCourante){
-        if (mois > 0 && mois <= 12){
+        if (mois >= moisCourant && mois <= 12){
             if (((annee % 4 == 0 && annee % 100 != 0) || annee % 400 == 0) && mois == 2){
-                if (jour > 0 && jour <= 29){
+                if (jour >= jourCourant && jour <= 29){
                     verifdate = 1;
                 }
             }else if(mois == 2){
-                if (jour > 0 && jour <= 28){
+                if (jour >= jourCourant && jour <= 28){
                     verifdate = 1;
                 }
             }else if(mois == 1 || mois == 3 || mois == 5|| mois == 7 || mois == 8 || mois == 10 || mois == 12){
-                if (jour > 0 && jour <= 31){
+                if (jour >= jourCourant && jour <= 31){
                     verifdate = 1;
                 }
             }else{
-                if (jour > 0 && jour <= 30){
+                if (jour >= jourCourant && jour <= 30){
                     verifdate = 1;
                 }
             }
