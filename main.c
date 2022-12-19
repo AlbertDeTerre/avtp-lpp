@@ -899,21 +899,3 @@ int main()
     printf("\n** FIN DU PROGRAMME **\n");
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
