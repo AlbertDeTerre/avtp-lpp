@@ -36,7 +36,7 @@ int main()
     
     //Déclaration des fonctions et variables;
     int running = 1, identification(), jourSemaine(int, int, int), jourExiste(int, int, int, int, int, int);
-    void reserver(table*), ajouterPersonnel(), supprimerPersonnel();
+    void reserver(table*), ajouterPersonnel(), supprimerPersonnel(), afficherPersonnel();
     void annulerReservation(), afficherReservations();
     table *tdeb, *tcourant;
     personnel *pcourant, *pdeb;
@@ -85,6 +85,8 @@ int main()
                     ajouterPersonnel();
                 }else if(option == 2){
                     supprimerPersonnel();
+                }else if(option == 3){
+                    afficherPersonnel();
                 }
             //L'utilisateur veut quitter le prog
             }else{
@@ -320,8 +322,10 @@ void ajouterPersonnel(){
         nbEmpFonction[courant->matricule / 100] ++;
         courant = courant->suivant;
     }
-
+    
     fres = fopen("VoiturierPlasschaertPersonnel.dat", "w");
+
+    //Stockage des différentes fonctions ous forme de string
     char fonctions[4][21];
     strcpy(fonctions[1], "GERANT");
     strcpy(fonctions[2], "CUISINIER");
@@ -344,6 +348,7 @@ void ajouterPersonnel(){
                 strcpy(courant->suivant->prenom, prenom);
                 courant->suivant->matricule = courant->matricule + 1;
             }
+        //S'il n'y pas encore d'employé dans la section qu'on ajoute ou si le fichier ne contient que le gérant
         }else if((courant->matricule == 999 && (courant->suivant == NULL || courant->suivant->matricule / 100 > fonction)) || (courant->matricule != 999 && courant->suivant->matricule / 100 > 1 + courant->matricule / 100 && fonction == 1 + courant->matricule / 100)){
             intercale->suivant = courant->suivant;
             courant->suivant = intercale;
@@ -363,7 +368,8 @@ void supprimerPersonnel(){
     
     FILE *fres;
     personnel * lecturePersonnel();
-
+    
+    //Liste d'employés
     personnel *courant, *deb, *intercale;
     intercale = malloc(sizeof(personnel));
     courant = lecturePersonnel();
@@ -372,33 +378,37 @@ void supprimerPersonnel(){
     int fonction, present = 0, mat;
     char prenom[21];
 
+    //Demande l'employé a supprimer
     printf("Matricule de l'employé à supprimer: ");
     scanf("%3d", &mat);
 
     fres = fopen("VoiturierPlasschaertPersonnel.dat", "w");
 
+    //On parcourt la liste des employés
     while (courant->suivant != NULL){
+        //Si l'employé courant est celui qu'on veut supprimer, on le supprime
         if (courant->suivant->matricule == mat){
             present = 1;
             intercale = courant->suivant->suivant;
             courant->suivant = intercale;
         }
-        if (courant->matricule / 100 == mat / 100 && courant->matricule > mat){
-            courant->matricule -= 1;
-        }
+
         fprintf(fres, "%03d %-20s %-20s\n", courant->matricule, courant->prenom, courant->fonction);
         courant = courant->suivant;
     }
 
+    //Si l'employé n'existe pas
     if (present != 1){
         printf("\n!!CET EMPLOYE N'EXISTE PAS!!\n");
     }
-
+    fclose(fres);
 }
 
 // ---------------------------------- AFFICHE LA LISTE DES EMPLOYES ----------------------------------
-void afficherPersonnel(personnel * courant){
-    personnel *deb;
+void afficherPersonnel(){
+    personnel *deb, *courant;
+    personnel * lecturePersonnel();
+    courant = lecturePersonnel();
     deb = courant;
     char tmpfonc[21] = "";
 
