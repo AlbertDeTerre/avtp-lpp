@@ -4,7 +4,6 @@
 #include <ctype.h>
 #include <time.h>
 
-
 typedef struct reservation{
     char date[11];
     int nbtables;
@@ -38,7 +37,7 @@ int main()
     //Déclaration des fonctions et variables;
     int running = 1, identification(), jourSemaine(int, int, int), jourExiste(int, int, int, int, int, int);
     void reserver(table*), ajouterPersonnel(), afficherPersonnel(personnel*);
-    void annulerReservation();
+    void annulerReservation(), afficherReservations();
     table *tdeb, *tcourant;
     personnel *pcourant, *pdeb;
     
@@ -65,12 +64,14 @@ int main()
 
             //L'utilisateur veut encoder une réservation
             if(option == 1){
-                printf("CHOISISSEZ UNE OPTION: (1: AJOUTER UNE RESERVATION | 2: ANNULER UNE RESERVATION | AUTRE: QUITTER)\n");
+                printf("CHOISISSEZ UNE OPTION: (1: AJOUTER UNE RESERVATION | 2: ANNULER UNE RESERVATION | 3: AFFICHER | AUTRE: QUITTER)\n");
                 scanf("%2d", &option);
                 if (option == 1){
                     reserver(tdeb);
                 }else if (option == 2){
                     annulerReservation();
+                }else if (option == 3){
+                    afficherReservations();
                 }
 
             //L'utilisateur veut encoder une commande
@@ -121,7 +122,6 @@ int main()
         }
     }
     
-
     printf("\n** FIN DU PROGRAMME **\n");
 }
 
@@ -224,6 +224,62 @@ int identification(){
     printf("\n!! Identification échouée !!\n");
     fclose(fdat);
     return -1;
+}
+
+// ----------------------------------------- AFFICHER LES RESERVATIONS ------------------------------------
+void afficherReservations(){
+    FILE *fdat, *fres;
+    fdat = fopen("VoiturierPlasschaertReservations.dat", "r");
+    reservation * lectureReservations();
+    //Variables utile pour récupérer la date du jour
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+
+    //Date d'aujourd'hui
+    int jourAuj = tm.tm_mday;
+    int moisAuj = tm.tm_mon + 1;
+    int anneeAuj = tm.tm_year + 1900;
+    int jourExiste(int, int, int, int, int, int);
+
+    //On check si le fichier est vide
+    int c = fgetc(fdat), vide;
+    if (c == EOF){
+        vide = 1;
+    }else{
+        vide = 0;
+        ungetc(c, fdat);
+    }
+
+    //Fermer le fichier
+    fclose(fdat);
+
+    //Si le fichier est vide on arrete l'annulation de la reservation
+    if (vide == 1){
+        printf("\n!! IMPOSSIBLE D'AFFICHER LES RESERVATIONS CAR IL N'Y EN A AUCUNE !!\n");
+        return;
+    }
+
+    reservation *courant, *deb;
+    courant = lectureReservations();
+    deb = courant;
+
+    //On parcourt la liste des reservations
+    printf("                    RESERVATIONS                      \n");
+    printf("=====================================================\n");
+    printf("DATES        | TABLES RESERVEES\n");
+    while(courant->suivant != NULL){
+        if (jourExiste(courant->jour, courant->mois, courant->annee, anneeAuj, moisAuj, jourAuj) == 1){
+            printf("-------------|---------------------------------------\n");
+            printf("%-10s   ", courant->date);
+            for (int i = 0; i < courant->nbtables; i++){
+                printf("| %02d ", courant->tables[i]);
+            }
+            printf("\n");
+        }
+        courant = courant->suivant;
+    }
+    printf("=====================================================\n");
+
 }
 
 // ----------------------------------------- AJOUTE UN EMPLOYE -------------------------------------------
@@ -524,9 +580,9 @@ void reserver(table * tcourant){
             }else{
                 fres = fopen("VoiturierPlasschaertReservations.dat", "a");
                 fprintf(fres, "%-10s %02d %02d", dateRes, 1, tableChoisie);
+                fclose(fres);
                 return;
             }
-            fclose(fres);
         }
     }
 }
